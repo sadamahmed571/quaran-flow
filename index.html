@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>المصحف الإلكتروني</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="img/page-logo.png" type="image/png">
+    <link rel="apple-touch-icon" sizes="256x256" href="img/app-logo11.png">
+
+    <meta name="theme-color" content="#1e3a8a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="المصحف">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="css/fonts-quran.css">
+    <link rel="stylesheet" href="css/quran.css">
+    <style>
+        .bookmarked-verse {
+            background-color: rgba(251, 191, 36, 0.15);
+            /* amber-200/15 */
+            border-right: 3px solid #d97706;
+            /* amber-600 */
+        }
+
+        .action-btn.active-bookmark {
+            color: #d97706;
+        }
+
+        .action-btn.active-bookmark svg {
+            fill: currentColor;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- الشريط العلوي -->
+    <footer class="app-footer" id="appFooter">
+        <div class="footer-inner">
+            <!-- القسم الأيمن -->
+            <div class="footer-right">
+                <div class="footer-nav">
+                    <a href="index.html" class="home-btn" title="الرئيسية">
+                        <i data-lucide="home"></i>
+                        <span>الرئيسية</span>
+                    </a>
+                    <div class="quran-font-tool-footer" id="quranFontTool">
+                        <button type="button" class="quran-font-toggle-footer" id="quranFontToggle" title="حجم الخط">
+                            <i data-lucide="type"></i>
+                            <span>خط</span>
+                        </button>
+                        <div class="quran-font-actions-footer" id="quranFontActions" aria-hidden="true">
+                            <button type="button" class="quran-font-btn" id="quranFontMinus" title="تصغير الخط">A-</button>
+                            <button type="button" class="quran-font-btn" id="quranFontPlus" title="تكبير الخط">A+</button>
+                        </div>
+                    </div>
+                    <button class="search-btn" id="searchBtn" title="البحث والفهرس">
+                        <i data-lucide="search"></i>
+                        <span>بحث</span>
+                    </button>
+                    <button type="button" class="nav-btn" id="returnBookmarkBtn" title="العودة لآخر موضع">
+                        <i data-lucide="bookmark"></i>
+                        <span>علامة</span>
+                    </button>
+                    <button type="button" class="favorites-btn" id="favoritesBtn" title="المفضلة">
+                        <i data-lucide="heart"></i>
+                        <span>مفضلة</span>
+                    </button>
+                    <button type="button" class="theme-btn" id="themeBtn" title="تغيير الثيم">
+                        <i data-lucide="sun"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </footer>
+
+    <!-- شريط التقدم اليومي -->
+    <div class="daily-progress-bar" id="dailyProgressBar" style="display: none;">
+        <div class="daily-progress-fill" id="dailyProgressFill"></div>
+        <div class="daily-progress-label">الورد اليومي</div>
+    </div>
+
+    <main class="reading-area" id="readingArea">
+        <div class="loading-state" id="loadingState">
+            <div class="spinner"></div>
+            <p>جاري تحميل المصحف...</p>
+        </div>
+        <div class="page-view" id="pageView" style="display: none;">
+            <div class="ornament ornament-top" aria-hidden="true"></div>
+            <div class="ornament ornament-bottom" aria-hidden="true"></div>
+            <div class="page-view-inner" id="pageViewInner"></div>
+        </div>
+    </main>
+
+    <!-- نافذة التفسير المنبثقة -->
+    <div class="verse-insight" id="verseInsight">
+        <div class="insight-header">
+            <div class="insight-title">تفسير الآية</div>
+
+
+            <button class="insight-close" id="insightClose">×</button>
+
+        </div>
+        <div class="insight-content">
+            <div id="insightText">جاري تحميل التفسير...</div>
+        </div>
+        <div class="insight-actions">
+            <button class="insight-action-btn" id="copyVerseBtn">نسخ الآية</button>
+            <button class="insight-action-btn" id="copyWithTafseerBtn">نسخ مع التفسير</button>
+            <button class="insight-action-btn" id="shareWhatsAppBtn">مشاركة واتساب</button>
+
+        </div>
+        <span class="insight-span">التفسير الميسر -
+            الطبعة السادسة 1440 - 2019</span>
+    </div>
+
+    <!-- شريط الأزرار السريع -->
+    <div class="verse-action-bar" id="verseActionBar">
+        <div class="action-item">
+            <button class="action-btn" id="copyBtn" title="نسخ">
+                <i data-lucide="copy"></i>
+            </button>
+            <span class="action-label">نسخ</span>
+        </div>
+        <div class="action-item">
+            <button class="action-btn" id="bookmarkBtn" title="وضع علامة">
+                <i data-lucide="bookmark"></i>
+            </button>
+            <span class="action-label">علامة</span>
+        </div>
+        <div class="action-item">
+            <button class="action-btn" id="tafseerBtn" title="تفسير">
+                <i data-lucide="book-open"></i>
+            </button>
+            <span class="action-label">تفسير</span>
+        </div>
+        <div class="action-item">
+            <button class="action-btn" id="audioBtn" title="التلاوة الصوتية">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+            </button>
+            <span class="action-label">تلاوة</span>
+        </div>
+        <div class="action-item">
+            <button class="action-btn" id="favoriteBtn" title="إضافة للمفضلة">
+                <i data-lucide="heart"></i>
+            </button>
+            <span class="action-label">مفضلة</span>
+        </div>
+        <div class="action-item">
+            <button class="action-btn" id="shareBtn" title="مشاركة واتساب">
+                <i data-lucide="share-2"></i>
+            </button>
+            <span class="action-label">مشاركة</span>
+        </div>
+    </div>
+
+    <!-- نافذة الآيات المفضلة العصرية -->
+    <div class="favorites-overlay" id="favoritesOverlay"></div>
+    <div class="favorites-panel" id="favoritesPanel">
+        <div class="panel-header">
+            <h3 class="panel-title">
+                <i data-lucide="heart"></i>
+                الآيات المفضلة
+            </h3>
+            <button class="panel-close" id="favoritesClose">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="panel-content" id="favoritesList">
+            <!-- قائمة المفضلات ستظهر هنا بتصميم الكاروتس -->
+        </div>
+    </div>
+
+    <!-- لوحة البحث والفهرس -->
+    <div class="search-panel" id="searchPanel">
+        <div class="search-header">
+            <div class="search-title">
+                <i data-lucide="compass" width="24"></i>
+                الفهرس والبحث
+            </div>
+            <button class="close-btn-v2" id="searchClose">×</button>
+        </div>
+
+        <div class="search-input-container">
+            <input type="text" class="search-input" id="mainSearchInput"
+                placeholder="ابحث عن اسم سورة، رقم صفحة، أو آية...">
+            <i data-lucide="search" class="search-icon-inside" width="18"></i>
+        </div>
+
+        <div class="index-tabs">
+            <div class="tabs-scroll">
+                <button class="index-tab active" data-tab="suras">السور</button>
+                <button class="index-tab" data-tab="verses">الآيات</button>
+                <button class="index-tab" data-tab="pages">انتقال للصفحة</button>
+            </div>
+            <div class="search-stats-badge" id="searchResultsCount">0 نتائج</div>
+        </div>
+
+        <div class="index-list" id="indexList">
+            <!-- Data will be populated by JS -->
+        </div>
+    </div>
+
+    <!-- Floating Info Display -->
+    <div class="floating-info-display" id="floatingInfoDisplay">
+        <button type="button" class="nav-btn-float" id="btnPrev" title="السابق">
+            <i data-lucide="chevron-right"></i>
+        </button>
+        <div class="floating-info-separator"></div>
+        <div class="floating-info-item" id="floatingSuraName">الفاتحة</div>
+        <div class="floating-info-separator"></div>
+        <div class="floating-info-item" id="floatingPageIndicator">ص 1</div>
+        <div class="floating-info-separator"></div>
+        <div class="floating-info-item" id="floatingJuzNumber">جزء 1</div>
+        <div class="floating-info-separator"></div>
+        <button type="button" class="nav-btn-float" id="btnNext" title="التالي">
+            <i data-lucide="chevron-left"></i>
+        </button>
+    </div>
+
+    <!-- Audio Player Container -->
+    <div id="audioPlayerContainer"></div>
+
+    <script src="assets/js/lib/lucide.min.js"></script>
+    <script src="js/AudioService.js"></script>
+    <script src="js/AudioPlayer.js"></script>
+    <script src="js/quran.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+            
+            // Initialize audio player
+            if (window.audioPlayer) {
+                const audioContainer = document.getElementById('audioPlayerContainer');
+                audioPlayer.initUI(audioContainer);
+                audioPlayer.show(false); // Hidden by default
+            }
+        });
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('SW Registered in Quran Page', reg))
+                    .catch(err => console.log('SW Registration Failed', err));
+            });
+        }
+    </script>
+</body>
+
+</html>
