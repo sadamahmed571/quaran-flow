@@ -1,31 +1,20 @@
-# المصحف الإلكتروني
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+</div>
 
-تطبيق مصحف إلكتروني متكامل يحتوي على:
-- القرآن الكريم كاملاً
-- التفسير الميسر
-- البحث المتقدم في السور والآيات
-- تتبع الورد القرآني اليومي
-- الآيات المفضلة والإشارات المرجعية
-- واجهة مستخدم عصرية وسهلة الاستخدام
+# Run and deploy your AI Studio app
 
-## المميزات
-- قراءة سلسة للقرآن الكريم
-- تفسير ميسر لجميع الآيات
-- بحث سريع في السور والآيات والصفحات
-- متابعة التقدم في الختمة
-- حفظ الآيات المفضلة
-- إشارات مرجعية للمواضع المهمة
+This contains everything you need to run your app locally.
 
-## التثبيت والتشغيل
-1. تشغيل الخادم المحلي:
-   ```bash
-   node server.js
-   ```
-2. فتح التطبيق في المتصفح على:
-   ```
-   http://localhost:3000
-   ```
+View your app in AI Studio: https://ai.studio/apps/9bfb2ac9-7262-41b6-a142-0f2f91fcec27
 
-## المتطلبات
-- Node.js لتشغيل الخادم المحلي
-- متصفح ويب حديث
+## Run Locally
+
+**Prerequisites:**  Node.js
+
+
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`

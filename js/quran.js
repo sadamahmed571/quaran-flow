@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
     const STORAGE_KEY_PAGE = 'quran_last_page';
     const STORAGE_KEY_SURA = 'quran_last_sura_name';
     const STORAGE_KEY_THEME = 'quran_theme';
@@ -34,6 +34,7 @@
     let touchStartX = 0;
 
     const loadingState = document.getElementById('loadingState');
+    const readingArea = document.getElementById('readingArea');
     const pageView = document.getElementById('pageView');
     const pageViewInner = document.getElementById('pageViewInner');
     const pageIndicator = document.getElementById('floatingPageIndicator');
@@ -56,6 +57,7 @@
     const audioBtn = document.getElementById('audioBtn');
     const favoriteBtn = document.getElementById('favoriteBtn');
     const shareBtn = document.getElementById('shareBtn');
+    const tibyanBtn = document.getElementById('tibyanBtn');
     const copyVerseBtn = document.getElementById('copyVerseBtn');
     const copyWithTafseerBtn = document.getElementById('copyWithTafseerBtn');
     const shareWhatsAppBtn = document.getElementById('shareWhatsAppBtn');
@@ -65,9 +67,6 @@
 
     const returnBookmarkBtn = document.getElementById('returnBookmarkBtn');
 
-    const quranFontTool = document.getElementById('quranFontTool');
-    const quranFontToggle = document.getElementById('quranFontToggle');
-    const quranFontActions = document.getElementById('quranFontActions');
     const quranFontMinus = document.getElementById('quranFontMinus');
     const quranFontPlus = document.getElementById('quranFontPlus');
 
@@ -94,38 +93,19 @@
     }
 
     function initFontControls() {
-        if (!quranFontTool || !quranFontToggle || !quranFontActions || !quranFontMinus || !quranFontPlus) return;
-
-        // Reset state - show toggle, hide actions
-        quranFontToggle.classList.remove('hidden');
-        quranFontActions.classList.remove('show');
-        quranFontActions.setAttribute('aria-hidden', 'true');
+        if (!quranFontMinus || !quranFontPlus) return;
 
         let scale = readFontScale();
         applyFontScale(scale);
 
-        quranFontToggle.addEventListener('click', function () {
-            quranFontToggle.classList.add('hidden');
-            quranFontActions.classList.add('show');
-            quranFontActions.setAttribute('aria-hidden', 'false');
-        });
-
-        function hideFontControls() {
-            quranFontToggle.classList.remove('hidden');
-            quranFontActions.classList.remove('show');
-            quranFontActions.setAttribute('aria-hidden', 'true');
-        }
-
         quranFontMinus.addEventListener('click', function () {
             scale = clamp(scale - 0.05, 0.85, 1.35);
             applyFontScale(scale);
-            hideFontControls();
         });
 
         quranFontPlus.addEventListener('click', function () {
             scale = clamp(scale + 0.05, 0.85, 1.35);
             applyFontScale(scale);
-            hideFontControls();
         });
     }
 
@@ -206,7 +186,7 @@
         if (isHidden) {
             searchPanel.classList.add('show');
             mainSearchInput.focus();
-            renderIndex('suras'); // Default view
+            renderIndex('verses'); // Default view
         } else {
             searchPanel.classList.remove('show');
         }
@@ -381,6 +361,7 @@
     let tappedVerse = null;
     let currentVerseText = '';
     let currentVerseNumber = '';
+    let currentSuraNumber = '';
     let currentTafseer = '';
     let currentSuraName = '';
 
@@ -719,6 +700,8 @@
 
     // وظيفة الإشعارات
     function showNotification(message, buttonElement) {
+        if (!buttonElement) return;
+        
         // إزالة أي إشعارات سابقة
         const existingTooltip = document.querySelector('.btn-tooltip');
         if (existingTooltip) {
@@ -757,7 +740,7 @@
         if (isHidden) {
             searchPanel.classList.add('show');
             if (mainSearchInput) mainSearchInput.focus();
-            renderIndex('suras'); // Default view
+            renderIndex('verses'); // Default view
         } else {
             searchPanel.classList.remove('show');
         }
@@ -887,9 +870,13 @@
 
     // التفسير اللحظي
     function showVerseInsight(verseText, verseNumber) {
-        // Determine current sura_no based on currentSuraName or look at the first verse on current page
-        const currentSurasOnPage = (pagesMap[currentPageNum] || []).filter(v => v.sura_name_ar.trim() === currentSuraName.trim());
-        const suraNo = currentSurasOnPage.length > 0 ? currentSurasOnPage[0].sura_no : null;
+        // Evaluate sura number correctly
+        let suraNo = currentSuraNumber;
+        if (!suraNo) {
+            // Fallback (rarely used now)
+            const currentSurasOnPage = (pagesMap[currentPageNum] || []).filter(v => v.sura_name_ar.trim() === currentSuraName.trim());
+            suraNo = currentSurasOnPage.length > 0 ? currentSurasOnPage[0].sura_no : null;
+        }
 
         if (!suraNo) {
             insightText.textContent = "عذراً، لم يتم العثور على التفسير لهذه السورة.";
@@ -1181,6 +1168,17 @@
             currentSuraName = verses[0].sura_name_ar ? verses[0].sura_name_ar.trim() : '';
         }
 
+        // Apply special styling for first two pages
+        if (currentPageNum === 1 || currentPageNum === 2) {
+            pageView.classList.add('first-pages');
+            if (readingArea) readingArea.classList.add('first-pages-active');
+            pageView.setAttribute('data-page', currentPageNum);
+        } else {
+            pageView.classList.remove('first-pages');
+            if (readingArea) readingArea.classList.remove('first-pages-active');
+            pageView.removeAttribute('data-page');
+        }
+
         // إضافة تأثير الانتقال
         pageView.classList.add('page-transition-out');
 
@@ -1207,6 +1205,7 @@
                     e.preventDefault();
                     const verseNumber = this.getAttribute('data-verse');
                     const verseText = this.getAttribute('data-full-text');
+                    const suraNumber = this.getAttribute('data-sura');
 
                     // تظليل الآية
                     if (tappedVerse && tappedVerse !== this) {
@@ -1218,6 +1217,7 @@
                     // تخزين بيانات الآية الحالية
                     currentVerseText = verseText;
                     currentVerseNumber = verseNumber;
+                    currentSuraNumber = suraNumber;
 
                     // إظهار شريط الأزرار فقط
                     showActionBar();
@@ -1309,9 +1309,26 @@
         else if (e.key === 'ArrowLeft') goNext();
     });
 
-    fetch('assets/quran.json')
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
+    async function initData() {
+        try {
+            let data = null;
+            try {
+                data = await window.QuranDB.get('quran_data');
+            } catch (err) {
+                console.warn('DB get failed, falling back to fetch', err);
+            }
+            
+            if (!data || !Array.isArray(data) || data.length === 0) {
+                const res = await fetch('assets/quran.json');
+                data = await res.json();
+                // لا ننتظر حفظ البيانات كي لا تتجمد واجهة المستخدم
+                try {
+                    window.QuranDB.set('quran_data', data).catch(console.error);
+                } catch (err) {
+                    console.warn('DB set failed', err);
+                }
+            }
+
             loadPlan();
             loadTheme();
             loadFavorites(); // تحميل المفضلة
@@ -1323,6 +1340,7 @@
             // تحديد الصفحة الافتتاحية: الرابط أولاً، ثم آخر صفحة وصل إليها، ثم بداية ورد اليوم
             const urlParams = new URLSearchParams(window.location.search);
             const pageParam = urlParams.get('page');
+            const openIndexParam = urlParams.get('openIndex');
             let startPage = 1;
 
             if (pageParam) {
@@ -1350,18 +1368,14 @@
             renderCurrentPage();
             updateUI();
 
-            // تحميل التفسير في الخلفية لتسريع البداية
-            fetch('assets/tafseerMouaser_v03.json')
-                .then(r => r.json())
-                .then(data => {
-                    tafseerData = data;
-                    // بنية خريطة للبحث السريع: "suraNo-ayaNo"
-                    data.forEach(v => {
-                        tafseerMap[`${v.sura_no}-${v.aya_no}`] = v;
-                    });
-                    console.log("Tafseer loaded successfully");
-                })
-                .catch(err => console.error("Error loading tafseer:", err));
+            if (openIndexParam === 'true') {
+                setTimeout(() => {
+                    if (searchPanel && !searchPanel.classList.contains('show')) {
+                        searchPanel.classList.add('show');
+                        if (typeof renderIndex === 'function') renderIndex('suras');
+                    }
+                }, 300);
+            }
 
             // تهيئة الميزات الإبداعية
             initDeepFocusMode();
@@ -1390,14 +1404,11 @@
             if (audioBtn) {
                 audioBtn.addEventListener('click', function (e) {
                     e.stopPropagation();
-                    console.log('Audio button clicked');
                     if (window.audioPlayer) {
                         const audioContainer = document.getElementById('audioPlayerContainer');
-                        console.log('Audio container:', audioContainer);
-                        console.log('Current display:', audioContainer.style.display);
-                        audioPlayer.show(!audioContainer.style.display || audioContainer.style.display === 'none');
-                    } else {
-                        console.error('audioPlayer not available');
+                        if (audioContainer) {
+                            audioPlayer.show(!audioContainer.style.display || audioContainer.style.display === 'none');
+                        }
                     }
                 });
             }
@@ -1420,10 +1431,8 @@
                 returnBookmarkBtn.addEventListener('click', function (e) {
                     e.preventDefault();
                     const bookmark = loadBookmark();
-                    // Optional chaining equivalent check
                     if (bookmark && bookmark.page) {
                         goToPage(bookmark.page);
-                        // Wait for render
                         setTimeout(() => {
                             const selector = `.aya-wrap[data-sura="${bookmark.suraId}"][data-verse="${bookmark.ayahId}"]`;
                             const el = document.querySelector(selector);
@@ -1451,13 +1460,21 @@
             });
             shareBtn.addEventListener('click', shareWhatsApp);
 
+            if (tibyanBtn) {
+                tibyanBtn.addEventListener('click', function () {
+                    const contextStr = currentVerseText ? `سورة ${currentSuraName} - آية ${currentVerseNumber}: ${currentVerseText}` : '';
+                    if (window.openTibyanModal) {
+                        window.openTibyanModal(contextStr);
+                    }
+                });
+            }
+
             // Improved button handling function
             function handleButtonClick(callback, event) {
                 if (event) {
                     event.preventDefault();
                     event.stopPropagation();
                 }
-                // Add small delay to prevent double-clicks
                 if (this.disabled) return;
                 this.disabled = true;
                 setTimeout(() => {
@@ -1466,14 +1483,13 @@
                 callback();
             }
 
-            // أزرار القوائم المنبثقة - Improved event handling
+            // أزرار القوائم المنبثقة
             if (favoritesBtn) {
                 favoritesBtn.addEventListener('click', function (e) {
                     handleButtonClick.call(this, showFavoritesPanel, e);
                 });
             }
 
-            // Remove duplicate event listeners that might cause conflicts
             if (favoritesClose) {
                 favoritesClose.removeEventListener('click', hideFavoritesPanel);
                 favoritesClose.addEventListener('click', function (e) {
@@ -1511,15 +1527,43 @@
             document.addEventListener('click', function (e) {
                 if (!verseActionBar.contains(e.target) && !e.target.closest('.aya-wrap') && !verseInsight.contains(e.target)) {
                     hideActionBar();
-                    // إزالة التظليل عند إغلاق شريط الأزرار
                     if (tappedVerse) {
                         tappedVerse.classList.remove('verse-highlighted');
                         tappedVerse = null;
                     }
                 }
             });
-        })
-        .catch(function (err) {
+
+            // تحميل التفسير في الخلفية لتسريع البداية
+            try {
+                let tafseerRaw = null;
+                try {
+                    tafseerRaw = await window.QuranDB.get('tafseer_data_raw');
+                } catch (dbErr) {
+                    console.warn("DB get tafseer failed, falling back to fetch", dbErr);
+                }
+
+                if (!tafseerRaw || !Array.isArray(tafseerRaw) || tafseerRaw.length === 0) {
+                    const tRes = await fetch('assets/tafseerMouaser_v03.json');
+                    tafseerRaw = await tRes.json();
+                    try {
+                        window.QuranDB.set('tafseer_data_raw', tafseerRaw).catch(console.error);
+                    } catch (dbSetErr) {
+                        console.warn("DB set tafseer failed", dbSetErr);
+                    }
+                }
+                
+                tafseerData = tafseerRaw;
+                // بنية خريطة للبحث السريع: "suraNo-ayaNo"
+                tafseerRaw.forEach(v => {
+                    tafseerMap[`${v.sura_no}-${v.aya_no}`] = v;
+                });
+                console.log("Tafseer DB loaded successfully");
+            } catch (tafseerErr) {
+                console.warn("Failed to load tafseer data, continuing without it.", tafseerErr);
+            }
+        } catch (err) {
+            loadingState.style.display = 'flex'; // Make sure the error is visible
             loadingState.innerHTML = `
                         <div style="text-align: center; padding: 2rem; direction: rtl; font-family: 'Tajawal', sans-serif;">
                             <div style="font-size: 4rem; margin-bottom: 1rem; animation: bounce 2s infinite;">😕</div>
@@ -1543,6 +1587,9 @@
                             </div>
                         </div>
                     `;
-            console.error(err);
-        });
+            console.error("Initialization err:", err);
+        }
+    }
+
+    initData();
 })();

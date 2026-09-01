@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مصحف خُطى</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="img/page-logo.png" type="image/png">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+
+    <meta name="theme-color" content="#1e3a8a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="المصحف">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="css/fonts-quran.css">
+    <link rel="stylesheet" href="css/quran.css">
+    <style>
+        .bookmarked-verse {
+            background-color: rgba(251, 191, 36, 0.15);
+            /* amber-200/15 */
+            border-right: 3px solid #d97706;
+            /* amber-600 */
+        }
+
+        .action-btn.active-bookmark {
+            color: #d97706;
+        }
+
+        .action-btn.active-bookmark svg {
+            fill: currentColor;
+        }
+
+        /* Tibyan AI Modal Styles (matching index.html) */
+        .tibyan-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .tibyan-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .tibyan-container {
+            width: 100%;
+            max-width: 500px;
+            height: 85vh;
+            max-height: 800px;
+            background: var(--cream);
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform: translateY(30px) scale(0.95);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        .tibyan-modal.active .tibyan-container {
+            transform: translateY(0) scale(1);
+        }
+        .tibyan-header {
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, var(--ink) 0%, var(--ink-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+            border-bottom: 2px solid var(--gold);
+        }
+        .tibyan-header-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .tibyan-header-title h3 {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+        }
+        .tibyan-header-title p {
+            margin: 0;
+            font-size: 0.8rem;
+            opacity: 0.8;
+            font-family: Arial, sans-serif;
+        }
+        .tibyan-close {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+        .tibyan-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .tibyan-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            scroll-behavior: smooth;
+        }
+        .tibyan-msg {
+            max-width: 85%;
+            padding: 1rem 1.2rem;
+            border-radius: 16px;
+            font-family: Arial, sans-serif;
+            font-size: 1rem;
+            line-height: 1.6;
+            animation: fadeIn 0.3s ease;
+        }
+        .tibyan-msg.bot {
+            background: #ffffff;
+            color: var(--ink);
+            align-self: flex-start;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .tibyan-msg.user {
+            background: var(--navy);
+            color: white;
+            align-self: flex-end;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.2);
+        }
+        .tibyan-msg.bot .markdown-body p { margin-top: 0; margin-bottom: 0.8rem; }
+        .tibyan-msg.bot .markdown-body p:last-child { margin-bottom: 0; }
+        .tibyan-msg.bot .markdown-body ul { margin: 0.5rem 0; padding-right: 1.5rem; }
+        .tibyan-msg.bot .markdown-body li { margin-bottom: 0.3rem; }
+        .tibyan-msg.bot .markdown-body strong { color: var(--navy); font-weight: bold; }
+        .tibyan-prompts {
+            padding: 1rem 1.5rem;
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+        .tibyan-prompts::-webkit-scrollbar { display: none; }
+        .tibyan-prompt-btn {
+            white-space: nowrap;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: #927515;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-family: Arial, sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tibyan-prompt-btn:hover {
+            background: var(--gold);
+            color: white;
+        }
+        .tibyan-input-area {
+            padding: 1rem 1.5rem;
+            background: white;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            gap: 0.5rem;
+        }
+        .tibyan-input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 24px;
+            font-family: Arial, sans-serif;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+            background: #f9f9f9;
+        }
+        .tibyan-input:focus {
+            border-color: var(--navy);
+            background: white;
+        }
+        .tibyan-send {
+            background: var(--gold);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+        .tibyan-send:hover {
+            transform: scale(1.05);
+            background: #b8912e;
+        }
+        .tibyan-send:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        [data-theme="dark"] .tibyan-container { background: var(--cream); border-color: rgba(255,255,255,0.1); }
+        [data-theme="dark"] .tibyan-msg.bot { background: rgba(30, 41, 59, 0.8); color: var(--ink); border-color: rgba(255,255,255,0.1); }
+        [data-theme="dark"] .tibyan-msg.bot .markdown-body strong { color: var(--gold-light); }
+        [data-theme="dark"] .tibyan-input-area { background: rgba(30, 41, 59, 1); border-color: rgba(255,255,255,0.1); }
+        [data-theme="dark"] .tibyan-input { background: rgba(0,0,0,0.2); color: white; border-color: rgba(255,255,255,0.1); }
+        [data-theme="dark"] .tibyan-input::placeholder { color: rgba(255,255,255,0.4); }
+        [data-theme="dark"] .tibyan-prompts { border-color: rgba(255,255,255,0.1); }
+        [data-theme="dark"] .tibyan-prompt-btn { color: var(--gold-light); border-color: rgba(212, 175, 55, 0.3); }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 480px) {
+            .tibyan-messages { padding: 0.8rem 0.5rem; }
+            .tibyan-input-area { padding: 0.8rem 0.5rem; }
+            .tibyan-header { padding: 0.8rem 1rem; }
+            .tibyan-prompt-btn { padding: 0.5rem 0.8rem; font-size: 0.85rem; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- الشريط العلوي -->
+    <footer class="app-footer" id="appFooter">
+        <div class="footer-inner">
+            <!-- القسم الأيمن -->
+            <div class="footer-right">
+                <div class="footer-nav">
+                    <a href="index.html" class="home-btn" title="الرئيسية">
+                        <i data-lucide="home"></i>
+                        <span>الرئيسية</span>
+                    </a>
+                    <button class="search-btn" id="searchBtn" title="البحث والفهرس">
+                        <i data-lucide="search"></i>
+                        <span>بحث</span>
+                    </button>
+                    <button type="button" class="nav-btn" id="returnBookmarkBtn" title="العودة لآخر موضع">
+                        <i data-lucide="bookmark"></i>
+                        <span>علامة</span>
+                    </button>
+                    <button type="button" class="favorites-btn" id="favoritesBtn" title="المفضلة">
+                        <i data-lucide="heart"></i>
+                        <span>مفضلة</span>
+                    </button>
+                    <button type="button" class="theme-btn" id="themeBtn" title="تغيير الثيم">
+                        <i data-lucide="sun"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </footer>
+
+    <!-- شريط التقدم اليومي -->
+    <div class="daily-progress-bar" id="dailyProgressBar" style="display: none;">
+        <div class="daily-progress-fill" id="dailyProgressFill"></div>
+        <div class="daily-progress-label">الورد اليومي</div>
+    </div>
+
+    <main class="reading-area" id="readingArea">
+        <div class="loading-state" id="loadingState">
+            <div class="spinner"></div>
+            <p>جاري تحميل المصحف...</p>
+        </div>
+        <div class="page-view" id="pageView" style="display: none;">
+            <div class="ornament ornament-top" aria-hidden="true"></div>
+            <div class="ornament ornament-bottom" aria-hidden="true"></div>
+            <div class="page-view-inner" id="pageViewInner"></div>
+        </div>
+    </main>
+
+    <!-- نافذة التفسير المنبثقة -->
+    <div class="verse-insight" id="verseInsight">
+        <div class="insight-header">
+            <div class="insight-title">تفسير الآية</div>
+
+
+            <button class="insight-close" id="insightClose">×</button>
+
+        </div>
+        <div class="insight-content">
+            <div id="insightText">جاري تحميل التفسير...</div>
+        </div>
+        <div class="insight-actions">
+            <button class="insight-action-btn" id="copyVerseBtn">نسخ الآية</button>
+            <button class="insight-action-btn" id="copyWithTafseerBtn">نسخ مع التفسير</button>
+            <button class="insight-action-btn" id="shareWhatsAppBtn">مشاركة واتساب</button>
+
+        </div>
+        <span class="insight-span">التفسير الميسر -
+            الطبعة السادسة 1440 - 2019</span>
+    </div>
+
+    <!-- شريط الأزرار السريع -->
+    <div class="verse-action-bar" id="verseActionBar">
+        <div class="action-item">
+            <button class="action-btn" id="copyBtn" title="نسخ">
+                <i data-lucide="copy"></i>
+            </button>
+            <span class="action-label">نسخ</span>
+        </div>
+        <div class="action-item">
+            <button class="action-btn" id="bookmarkBtn" title="وضع علامة">
+                <i data-lucide="bookmark"></i>
+            </button>
+            <span class="action-label">علامة</span>
+        </div>
+        <div class="action-item">
+            <button class="action-btn" id="tafseerBtn" title="تفسير">
+                <i data-lucide="book-open"></i>
+            </button>
+            <span class="action-label">تفسير</span>
+        </div>
+        <div class="action-item" style="display: none;">
+            <button class="action-btn" id="audioBtn" title="التلاوة الصوتية">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+            </button>
+            <span class="action-label">تلاوة</span>
+        </div>
+        <div class="action-item">
+            <button class="action-btn" id="favoriteBtn" title="إضافة للمفضلة">
+                <i data-lucide="heart"></i>
+            </button>
+            <span class="action-label">مفضلة</span>
+        </div>
+        <div class="action-item">
+            <button class="action-btn" id="shareBtn" title="مشاركة واتساب">
+                <i data-lucide="share-2"></i>
+            </button>
+            <span class="action-label">مشاركة</span>
+        </div>
+        <div class="action-item" style="display: none;">
+            <button class="action-btn" id="tibyanBtn" title="تبيان AI">
+                <i data-lucide="bot"></i>
+            </button>
+            <span class="action-label">تبيان</span>
+        </div>
+    </div>
+
+    <!-- نافذة الآيات المفضلة العصرية -->
+    <div class="favorites-overlay" id="favoritesOverlay"></div>
+    <div class="favorites-panel" id="favoritesPanel">
+        <div class="panel-header">
+            <h3 class="panel-title">
+                <i data-lucide="heart"></i>
+                الآيات المفضلة
+            </h3>
+            <button class="panel-close" id="favoritesClose">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="panel-content" id="favoritesList">
+            <!-- قائمة المفضلات ستظهر هنا بتصميم الكاروتس -->
+        </div>
+    </div>
+
+    <!-- لوحة البحث والفهرس -->
+    <div class="search-panel" id="searchPanel">
+        <div class="search-header">
+            <div class="search-title">
+                <i data-lucide="compass" width="24"></i>
+                الفهرس والبحث
+            </div>
+            <button class="close-btn-v2" id="searchClose">×</button>
+        </div>
+
+        <div class="search-input-container">
+            <input type="text" class="search-input" id="mainSearchInput"
+                placeholder="ابحث عن اسم سورة، رقم صفحة، أو آية...">
+            <i data-lucide="search" class="search-icon-inside" width="18"></i>
+        </div>
+
+        <div class="index-tabs">
+            <div class="tabs-scroll">
+                <button class="index-tab active" data-tab="verses">الآيات</button>
+                <button class="index-tab" data-tab="suras">السور</button>
+                <button class="index-tab" data-tab="pages">انتقال للصفحة</button>
+            </div>
+            <div class="search-stats-badge" id="searchResultsCount">0 نتائج</div>
+        </div>
+
+        <div class="index-list" id="indexList">
+            <!-- Data will be populated by JS -->
+        </div>
+    </div>
+
+    <!-- Floating Info Display -->
+    <div class="floating-info-display" id="floatingInfoDisplay">
+        <button type="button" class="nav-btn-float font-btn-float" id="quranFontMinus" title="تصغير الخط">
+            <i data-lucide="minus-circle"></i>
+        </button>
+        <div class="floating-info-separator"></div>
+
+        <button type="button" class="nav-btn-float" id="btnPrev" title="السابق">
+            <i data-lucide="chevron-right"></i>
+        </button>
+        <div class="floating-info-separator"></div>
+        <div class="floating-info-item" id="floatingSuraName">الفاتحة</div>
+        <div class="floating-info-separator"></div>
+        <div class="floating-info-item" id="floatingPageIndicator">ص 1</div>
+        <div class="floating-info-separator"></div>
+        <div class="floating-info-item" id="floatingJuzNumber">جزء 1</div>
+        <div class="floating-info-separator"></div>
+        <button type="button" class="nav-btn-float" id="btnNext" title="التالي">
+            <i data-lucide="chevron-left"></i>
+        </button>
+
+        <div class="floating-info-separator"></div>
+        <button type="button" class="nav-btn-float font-btn-float" id="quranFontPlus" title="تكبير الخط">
+            <i data-lucide="plus-circle"></i>
+        </button>
+    </div>
+
+    <!-- Audio Player Container -->
+    <div id="audioPlayerContainer"></div>
+
+    <!-- Tibyan AI Chatbot Modal -->
+    <div class="tibyan-modal" id="tibyanModal">
+        <div class="tibyan-container">
+            <div class="tibyan-header">
+                <div class="tibyan-header-title">
+                    <i data-lucide="bot"></i>
+                    <div>
+                        <h3>تبيان AI</h3>
+                        <p>مساعدك القرآني الموثوق</p>
+                    </div>
+                </div>
+                <button class="tibyan-close" onclick="closeTibyanModal()"><i data-lucide="x"></i></button>
+            </div>
+            
+            <div class="tibyan-prompts" id="tibyanPrompts">
+                <button class="tibyan-prompt-btn" onclick="sendTibyanPrompt('أعطني نبذة شاملة عن هذه الآية فقط.')">نبذة شاملة عن الاية</button>
+                <button class="tibyan-prompt-btn" onclick="sendTibyanPrompt('ما هي معاني الكلمات الغريبة أو الصعبة في هذه الآية فقط؟')">غرائب الكلمات في الاية</button>
+                <button class="tibyan-prompt-btn" onclick="sendTibyanPrompt('ما هو سبب نزول هذه الآية إن وجد؟ اعتمد على سياق هذه الآية فقط.')">سبب النزول</button>
+            </div>
+
+            <div class="tibyan-messages" id="tibyanMessages">
+                <!-- الرسائل ستضاف هنا -->
+            </div>
+
+            <div class="tibyan-input-area">
+                <input type="text" id="tibyanInput" class="tibyan-input" placeholder="اسأل تبيان عما يحيرك في الآيات..." onkeypress="if(event.key === 'Enter') handleTibyanSend()">
+                <button class="tibyan-send" id="tibyanSendBtn" onclick="handleTibyanSend()"><i data-lucide="send"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/lib/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/AudioService.js"></script>
+    <script src="js/AudioPlayer.js"></script>
+    <script src="js/quran.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+            
+            // Initialize audio player
+            if (window.audioPlayer) {
+                const audioContainer = document.getElementById('audioPlayerContainer');
+                audioPlayer.initUI(audioContainer);
+                audioPlayer.show(false); // Hidden by default
+            }
+        });
+
+        // ======= Tibyan AI Chat Logic =======
+        window.currentTibyanContext = null;
+
+        function openTibyanModal(contextString = null) {
+            window.currentTibyanContext = contextString;
+            document.getElementById('tibyanModal').classList.add('active');
+            if (window.lucide) window.lucide.createIcons();
+            setTimeout(() => { document.getElementById('tibyanInput').focus(); }, 100);
+            if(contextString) {
+                const contextMsg = "تم استحضار الآية:\n" + contextString + "\n\nتفضل بسؤال تبيان.";
+                appendTibyanMessage(contextMsg, 'bot');
+            }
+        }
+
+        function closeTibyanModal() {
+            document.getElementById('tibyanModal').classList.remove('active');
+            window.currentTibyanContext = null;
+        }
+
+        function sendTibyanPrompt(text) {
+            document.getElementById('tibyanInput').value = text;
+            handleTibyanSend();
+        }
+
+        function appendTibyanMessage(text, sender) {
+            const container = document.getElementById('tibyanMessages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `tibyan-msg ${sender}`;
+            if(sender === 'bot') {
+                const mdDiv = document.createElement('div');
+                mdDiv.className = 'markdown-body';
+                mdDiv.innerHTML = window.marked ? window.marked.parse(text) : text;
+                msgDiv.appendChild(mdDiv);
+            } else {
+                msgDiv.textContent = text;
+            }
+            container.appendChild(msgDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function handleTibyanSend() {
+            const input = document.getElementById('tibyanInput');
+            const sendBtn = document.getElementById('tibyanSendBtn');
+            const text = input.value.trim();
+            if (!text) return;
+
+            input.value = '';
+            appendTibyanMessage(text, 'user');
+            input.disabled = true;
+            sendBtn.disabled = true;
+
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'tibyan-msg bot typing-indicator';
+            
+            const loadingMessages = [
+                'تبيان يحلل سؤالك...',
+                'تبيان يبحث في أمهات الكتب...',
+                'تبيان يستخلص الإجابة...',
+                'تبيان يتأمل في الآيات...',
+                'جاري صياغة الإجابة المناسبة...'
+            ];
+            const randomMsg = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+            
+            typingDiv.innerHTML = `${randomMsg} <span class="spinner" style="display:inline-block; border-top-color:var(--navy); width:12px; height:12px; border-width:2px; margin-right:5px; vertical-align:middle;"></span>`;
+            document.getElementById('tibyanMessages').appendChild(typingDiv);
+            document.getElementById('tibyanMessages').scrollTop = document.getElementById('tibyanMessages').scrollHeight;
+
+            try {
+                const response = await fetch('/api/tibyan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-api-key': localStorage.getItem('gemini_api_key') || '' },
+                    body: JSON.stringify({ 
+                        message: text,
+                        contextAyah: window.currentTibyanContext
+                    })
+                });
+                
+                typingDiv.remove();
+
+                if (!response.ok) {
+                    const errObj = await response.json().catch(() => null);
+                    throw new Error(errObj?.error || 'حدث خطأ غير معروف');
+                }
+                
+                const data = await response.json();
+                appendTibyanMessage(data.text, 'bot');
+                
+            } catch (err) {
+                typingDiv.remove();
+                console.error(err);
+                const isApiKeyError = err.message && (err.message.includes("API key not valid") || err.message.includes("Gemini"));
+                const errorMessage = isApiKeyError 
+                    ? "عذراً، مفتاح API الخاص بالذكاء الاصطناعي (Gemini) غير صالح أو مفقود. يرجى التوجه للإعدادات."
+                    : "عذراً، حدث خطأ أثناء الاتصال بمصادرنا. الرجاء المحاولة مرة أخرى.";
+                appendTibyanMessage(`**تنبيه:** ${errorMessage}`, 'bot');
+            } finally {
+                input.disabled = false;
+                sendBtn.disabled = false;
+                input.focus();
+            }
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('SW Registered in Quran Page', reg))
+                    .catch(err => console.log('SW Registration Failed', err));
+            });
+        }
+    </script>
+</body>
+
+</html>

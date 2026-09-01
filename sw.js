@@ -1,8 +1,8 @@
  
-const CACHE_NAME = 'quran-app-v25';
-const STATIC_CACHE = 'quran-static-v25';
-const DYNAMIC_CACHE = 'quran-dynamic-v25';
-const AUDIO_CACHE = 'quran-audio-v25';
+const CACHE_NAME = 'quran-app-v27';
+const STATIC_CACHE = 'quran-static-v27';
+const DYNAMIC_CACHE = 'quran-dynamic-v27';
+const AUDIO_CACHE = 'quran-audio-v27';
 
 // Audio cache configuration
 const MAX_AUDIO_CACHE_SIZE = 200 * 1024 * 1024; // 200MB
@@ -12,6 +12,7 @@ const AUDIO_CACHE_QUOTA_CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes
 const STATIC_ASSETS = [
     '/',
     '/index.html',
+    '/quran.html',
     '/manifest.json',
     '/sw.js',
     '/css/quran.css',
@@ -55,6 +56,8 @@ const STATIC_ASSETS = [
     '/img/app-logo2.png',
     '/img/app-logo4.png',
     '/img/apple-touch-icon.png',
+    '/img/android-chrome-192x192.png',
+    '/img/android-chrome-512x512.png',
     '/img/page-logo.png'
 ];
 

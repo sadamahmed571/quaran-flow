@@ -1,254 +1,2944 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>المصحف الإلكتروني</title>
+    <title>مصحف خُطى</title>
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="img/page-logo.png" type="image/png">
-    <link rel="apple-touch-icon" sizes="256x256" href="img/app-logo11.png">
-
+    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+    
     <meta name="theme-color" content="#1e3a8a">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="المصحف">
-    <meta name="format-detection" content="telephone=no">
     <link rel="stylesheet" href="css/fonts-quran.css">
-    <link rel="stylesheet" href="css/quran.css">
+    
+    <!-- Scripts -->
+    <script src="assets/js/lib/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="js/db.js"></script>
+    
     <style>
-        .bookmarked-verse {
-            background-color: rgba(251, 191, 36, 0.15);
-            /* amber-200/15 */
-            border-right: 3px solid #d97706;
-            /* amber-600 */
+        :root {
+            --navy: #1e3a8a;
+            --navy-light: #2563eb;
+            --cream: #fdfbf7;
+            --gold: #d4af37;
+            --gold-light: #fef08a;
+            --ink: #1e293b;
+            --ink-light: #475569;
+            --bg-glass: rgba(255, 255, 255, 0.85);
+        }
+        
+
+
+        .mood-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            border-radius: 1rem;
+            font-family: Arial, sans-serif;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-decoration: none;
+            outline: none;
         }
 
-        .action-btn.active-bookmark {
-            color: #d97706;
+        .mood-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
         }
 
-        .action-btn.active-bookmark svg {
-            fill: currentColor;
+
+
+        /* Tibyan AI Chatbot Styles */
+        .tibyan-fab {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--gold) 0%, #b8912e 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.4);
+            cursor: pointer;
+            z-index: 990;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .tibyan-fab:hover {
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 15px 30px rgba(212, 175, 55, 0.5);
+        }
+
+        .tibyan-fab i {
+            width: 28px;
+            height: 28px;
+            animation: pulse-light 2s infinite;
+        }
+
+        @keyframes pulse-light {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .tibyan-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .tibyan-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .tibyan-container {
+            width: 100%;
+            max-width: 500px;
+            height: 85vh;
+            max-height: 800px;
+            background: var(--cream);
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform: translateY(30px) scale(0.95);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .tibyan-modal.active .tibyan-container {
+            transform: translateY(0) scale(1);
+        }
+
+        .tibyan-header {
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, var(--ink) 0%, var(--ink-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+            border-bottom: 2px solid var(--gold);
+        }
+
+        .tibyan-header-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .tibyan-header-title h3 {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+        }
+
+        .tibyan-header-title p {
+            margin: 0;
+            font-size: 0.8rem;
+            opacity: 0.8;
+            font-family: Arial, sans-serif;
+        }
+
+        .tibyan-close {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .tibyan-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .tibyan-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            scroll-behavior: smooth;
+        }
+
+        .tibyan-msg {
+            max-width: 85%;
+            padding: 1rem 1.2rem;
+            border-radius: 16px;
+            font-family: Arial, sans-serif;
+            font-size: 1rem;
+            line-height: 1.6;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tibyan-msg.bot {
+            background: #ffffff;
+            color: var(--ink);
+            align-self: flex-start;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .tibyan-msg.user {
+            background: var(--navy);
+            color: white;
+            align-self: flex-end;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.2);
+        }
+
+        .tibyan-msg.bot .markdown-body p { margin-top: 0; margin-bottom: 0.8rem; }
+        .tibyan-msg.bot .markdown-body p:last-child { margin-bottom: 0; }
+        .tibyan-msg.bot .markdown-body ul { margin: 0.5rem 0; padding-right: 1.5rem; }
+        .tibyan-msg.bot .markdown-body li { margin-bottom: 0.3rem; }
+        .tibyan-msg.bot .markdown-body strong { color: var(--navy); font-weight: bold; }
+
+        .tibyan-prompts {
+            padding: 1rem 1.5rem;
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .tibyan-prompts::-webkit-scrollbar { display: none; }
+
+        .tibyan-prompt-btn {
+            white-space: nowrap;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: #927515;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-family: Arial, sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tibyan-prompt-btn:hover {
+            background: var(--gold);
+            color: white;
+        }
+
+        .tibyan-input-area {
+            padding: 1rem 1.5rem;
+            background: white;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .tibyan-input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 24px;
+            font-family: Arial, sans-serif;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+            background: #f9f9f9;
+        }
+
+        .tibyan-input:focus {
+            border-color: var(--navy);
+            background: white;
+        }
+
+        .tibyan-send {
+            background: var(--gold);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .tibyan-send:hover {
+            transform: scale(1.05);
+            background: #b8912e;
+        }
+        
+        .tibyan-send:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Tibyan Dark Mode Support */
+
+        
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: var(--cream);
+            color: var(--ink);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            background-image: radial-gradient(circle at top center, #ffffff 0%, #f4f0e6 100%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        /* Subtle Islamic geometry background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><path d="M20 0l20 20-20 20L0 20z" fill="rgba(212, 175, 55, 0.03)"/><path d="M20 10l10 10-10 10-10-10z" fill="rgba(30, 58, 138, 0.02)"/></svg>');
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 600px;
+            padding: 2.5rem 1.5rem;
+            width: 100%;
+            box-sizing: border-box;
+            animation: fadeIn 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 1rem;
+            border-radius: 15px;
+            border: 3px solid var(--gold);
+            padding: 3px;
+            filter: drop-shadow(0 8px 16px rgba(30, 58, 138, 0.15));
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        h1 {
+            font-size: 3.2rem;
+            color: var(--navy);
+            margin: 0 0 0.5rem 0;
+            font-weight: 700;
+            line-height: 1.2;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--ink-light);
+            font-family: Arial, sans-serif;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Smart Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+            font-family: Arial, sans-serif;
+        }
+
+        .smart-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.6);
+            border-radius: 1.2rem;
+            padding: 1.2rem;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--ink);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            text-align: right;
+        }
+
+        .smart-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(30, 58, 138, 0.1);
+            border-color: var(--navy-light);
+        }
+
+        .smart-card:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .card-icon-wrapper {
+            background: rgba(30, 58, 138, 0.05);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 1.2rem;
+            flex-shrink: 0;
+            color: var(--navy);
+            transition: background 0.3s;
+        }
+
+        .smart-card:hover .card-icon-wrapper {
+            background: var(--navy);
+            color: white;
+        }
+
+        .card-content {
+            flex-grow: 1;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+            color: var(--navy);
+        }
+
+        .card-desc {
+            font-size: 0.9rem;
+            color: var(--ink-light);
+            margin: 0;
+        }
+
+        /* Golden Card (Continue Reading) */
+        .card-gold {
+            background: linear-gradient(135deg, #fffcf0 0%, #fff 100%);
+            border-color: rgba(212, 175, 55, 0.4);
+        }
+        .card-gold .card-icon-wrapper {
+            background: rgba(212, 175, 55, 0.15);
+            color: var(--gold);
+        }
+        .card-gold:hover {
+            border-color: var(--gold);
+            box-shadow: 0 15px 35px rgba(212, 175, 55, 0.15);
+        }
+        .card-gold:hover .card-icon-wrapper {
+            background: var(--gold);
+            color: white;
+        }
+        .card-gold .card-title {
+            color: #927515;
+        }
+
+        .chevron-icon {
+            color: var(--ink-light);
+            opacity: 0.5;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+        
+        .smart-card:hover .chevron-icon {
+            transform: translateX(-5px);
+            opacity: 1;
+            color: var(--navy);
+        }
+        
+        .card-gold:hover .chevron-icon {
+            color: var(--gold);
+        }
+
+        /* Dedication Card */
+        .dedication-card {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 2.5rem 2rem 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+            margin-bottom: 2.5rem;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            position: relative;
+        }
+        .dedication-card::before {
+            content: "بسم الله الرحمن الرحيم";
+            font-family: 'Amiri', 'Traditional Arabic', serif;
+            position: absolute;
+            top: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--cream);
+            padding: 0 20px;
+            color: var(--gold);
+            font-size: calc(2.2rem - 2px);
+            border-radius: 30px;
+        }
+        .dedication-text {
+            font-size: calc(1.3rem - 1px);
+            line-height: 2;
+            color: var(--ink);
+        }
+        .dedication-name {
+            font-size: calc(2rem - 1px);
+            color: var(--navy);
+            font-weight: bold;
+            margin: 1.5rem 0;
+            position: relative;
+            display: inline-block;
+        }
+        .dedication-name::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 15%;
+            width: 70%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+        
+        /* PWA Info Box */
+        .pwa-info {
+            background: rgba(240, 249, 255, 0.9);
+            border: 1px solid #bae6fd;
+            padding: 1.5rem;
+            border-radius: 1.5rem;
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.05);
+            font-family: Arial, sans-serif;
+            backdrop-filter: blur(5px);
+        }
+        .pwa-title {
+            color: var(--navy);
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+        .pwa-info p {
+            margin-top: 0;
+            margin-bottom: 1.2rem;
+            font-size: 1rem;
+            color: #0369a1;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+        .install-btn {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: white;
+            border: none;
+            padding: 0.9rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.25);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .install-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(14, 165, 233, 0.4);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        /* Footer Styles */
+        .app-footer {
+            margin-top: 3rem;
+            padding: 2rem 1rem;
+            text-align: center;
+            border-top: 1px solid rgba(30, 58, 138, 0.1);
+            width: 100%;
+            max-width: 600px;
+            box-sizing: border-box;
+        }
+        
+        /* Beautiful Developer Card Styles */
+        .developer-card-wrapper {
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        .developer-card {
+            background: linear-gradient(135deg, rgba(253, 251, 247, 0.95) 0%, rgba(255, 255, 255, 0.98) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            padding: 1.25rem 2rem;
+            border-radius: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.05);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .developer-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+
+        .developer-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.15);
+            border-color: var(--gold);
+        }
+
+        .developer-label {
+            font-size: 0.85rem;
+            color: var(--ink-light);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-family: Arial, sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .developer-label i, .developer-label svg {
+            width: 14px;
+            height: 14px;
+            color: var(--gold);
+        }
+
+        .developer-name-highlight {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--navy);
+            font-family: 'Amiri', 'Traditional Arabic', serif;
+            text-shadow: 0 1px 2px rgba(30, 58, 138, 0.05);
+            letter-spacing: 0.5px;
+            position: relative;
+            padding-bottom: 0.25rem;
+        }
+
+        .developer-name-highlight::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 10%;
+            width: 80%;
+            height: 1.5px;
+            background: linear-gradient(90deg, transparent, var(--gold-light), var(--gold), var(--gold-light), transparent);
+        }
+        
+        .contact-icons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            width: 100%;
+        }
+        
+        .contact-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: white;
+            color: var(--navy);
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(30, 58, 138, 0.1);
+        }
+        
+        .contact-icon:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 15px rgba(30, 58, 138, 0.15);
+        }
+        
+        .contact-icon:active {
+            transform: translateY(0);
+        }
+        
+        .contact-icon i {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .container { padding: 1.5rem 1rem; }
+            .logo { width: 100px !important; height: 100px !important; margin-bottom: 0.8rem; margin-top: 0.8rem; }
+            h1 { font-size: 2.1rem !important; } /* تم تصغيره ليتناسب مع الجوال */
+            .subtitle { font-size: 1.3rem !important; }
+            .header-section { margin-bottom: 1.4rem; }
+            
+            .smart-card { padding: 1rem; border-radius: 1rem; }
+            .card-icon-wrapper { width: 40px; height: 40px; margin-left: 0.8rem; }
+            .card-title { font-size: 1.05rem; }
+            .card-desc { font-size: 0.85rem; }
+            
+            /* Merged search & AI */
+            .merged-search-ai { padding: 1rem; }
+            .section-divider { margin: 0.65rem 0; }
+            .merged-search-ai .widget-title { font-size: 1.2rem !important; }
+            .merged-search-ai .widget-desc { font-size: 1.15rem !important; }
+            
+            /* Mood input + button */
+            #customMoodInput { font-size: 0.95rem !important; padding: 0.7rem 0.9rem !important; }
+            .mood-btn { padding: 0.6rem 1rem !important; font-size: 0.85rem !important; }
+            .mood-btn svg { width: 16px !important; height: 16px !important; }
+            
+            /* Mood grid */
+            .mood-grid { gap: 0.6rem; }
+            .mood-grid .mood-btn { padding: 0.7rem; font-size: 0.85rem; }
+            
+            /* Quick search */
+            .quick-search-input { font-size: 0.8rem; padding: 0.5rem 0.7rem 0.6rem 1.2rem !important ; }
+            .search-input-wrapper { border-radius: 0.8rem; }
+            .search-icon { width: 14px; height: 14px; top: 50%; transform: translateY(-50%); }
+            .clear-search-btn { width: 28px; height: 28px; }
+            .ai-input-wrapper { border-radius: 0.7rem; }
+            
+            /* Search results */
+            .search-results-container { border-radius: 0.7rem; margin-top: 0.4rem; }
+            
+            /* Tibyan Mobile adjustments */
+            .tibyan-messages { padding: 0.8rem 0.5rem; }
+            .tibyan-input-area { padding: 0.8rem 0.5rem; }
+            .tibyan-header { padding: 0.8rem 1rem; }
+            .tibyan-prompt-btn { padding: 0.5rem 0.8rem; font-size: 0.85rem; }
+            .search-result-item { padding: 0.5rem 0.6rem; }
+            /* تم تصحيح خطأ الـ !important هنا وفي الأسطر التالية */
+            .result-aya-text { font-size: 0.75rem !important; } 
+            .result-sura-info { font-size: 0.7rem !important; } 
+            .result-sura-info svg { width: 12px !important; height: 12px !important; }
+            .search-results-container.show { max-height: 350px; overflow-y: auto; }
+            
+            /* Expanded card */
+            .aya-expanded-card { padding: 0.8rem !important; }
+            .expanded-verse-text { font-size: 0.85rem !important; }
+            .expanded-sura-info { font-size: 0.8rem !important; }
+            .expanded-sura-info svg { width: 12px !important; height: 12px !important; }
+            .ayah-action-btn { font-size: 0.75rem; padding: 0.5rem 0.5rem !important; }
+            .ayah-action-btn svg { width: 12px !important; height: 12px !important; }
+            
+            /* PWA container */
+            .pwa-info { padding: 1.2rem; margin-top: 1.5rem; border-radius: 1.2rem; }
+            .pwa-title { font-size: 1.1rem; }
+            .pwa-info p { font-size: 0.9rem; }
+            .install-btn { padding: 0.6rem 1rem; font-size: 0.85rem; border-radius: 1.3rem; }
+            .install-btn svg { width: 16px !important; height: 16px !important; }
+            .tibyan-fab { display: none; }
+            
+            .dedication-card { padding: 2rem 1.2rem 1.2rem; border-radius: 1.2rem; }
+            .dedication-card::before { font-size: 1.5rem !important; top: -15px; padding: 0 10px; }
+            .dedication-text { font-size: 1.2rem !important;  line-height: 1.6; }
+            .dedication-name { font-size: 1.4rem; margin: 1rem 0; }
+            
+            .app-footer { margin-top: 1.5rem; padding: 1.5rem 1rem; }
+            .developer-card { padding: 0.85rem 1.5rem; border-radius: 1rem; }
+            .developer-name-highlight { font-size: 1.25rem; }
+            .contact-icon { width: 36px; height: 36px; }
+            .contact-icon svg { width: 18px; height: 18px; }
+            
+            /* Index list */
+            .index-list { gap: 0.4rem; }
+            .index-item { padding: 0.75rem; }
+            .item-number { font-size: 0.8rem; margin-left: 0.75rem; width: 28px; height: 28px; }
+            .item-name { font-size: 1rem; }
+            .item-page { font-size: 0.8rem; padding: 0.25rem 0.5rem; }
+        }
+
+        @media (max-width: 380px) {
+            .container { padding: 1rem 0.6rem; } /* تقليل التباعد الجانبي للاستفادة من مساحة الشاشة */
+            .logo { width: 65px; height: 65px; margin-bottom: 0.5rem; }
+            h1 { font-size: 1.7rem; } 
+            .subtitle { font-size: 1.2rem; }
+            .header-section { margin-bottom: 1.2rem; }
+            
+            .smart-card { padding: 0.8rem; }
+            .card-icon-wrapper { width: 32px; height: 32px; margin-left: 0.6rem; }
+            .card-title { font-size: 0.95rem; }
+            .card-desc { font-size: 0.8rem; }
+            
+            .mood-btn svg { width: 14px !important; height: 14px !important; }
+            
+            .dedication-card { padding: 1.5rem 1rem 1rem; border-radius: 1rem; margin-bottom: 1.5rem; }
+            .dedication-card::before { font-size: 1.4rem; top: -12px; padding: 0 8px; }
+            .dedication-text { font-size: 1.2rem; line-height: 1.5; }
+            .dedication-name { font-size: 1.3rem; margin: 0.8rem 0; }
+            
+            .pwa-info { padding: 1rem; border-radius: 1rem; }
+            .pwa-title { font-size: 1rem; }
+            .pwa-info p { font-size: 0.85rem; }
+            .install-btn { padding: 0.6rem 1rem; font-size: 0.85rem; }
+            .install-btn svg { width: 14px !important; height: 14px !important; }
+            
+            .developer-card { padding: 0.75rem 1.2rem; gap: 0.35rem; }
+            .developer-name-highlight { font-size: 1.15rem; }
+            .contact-icons { gap: 0.8rem; }
+            .contact-icon { width: 32px; height: 32px; }
+            .contact-icon svg { width: 16px; height: 16px; }
+            
+            /* Index list */
+            .index-list { gap: 0.3rem; }
+            .index-item { padding: 0.6rem; }
+            .item-number { font-size: 0.75rem; margin-left: 0.5rem; width: 24px; height: 24px; }
+            .item-name { font-size: 0.95rem; }
+            .item-page { font-size: 0.75rem; padding: 0.2rem 0.4rem; }
+            
+            /* Share App responsive updates for extremely small screens */
+            .share-app-card {
+                padding: 1rem;
+                border-radius: 1rem;
+            }
+            .share-app-title {
+                font-size: 1.1rem;
+            }
+            .share-app-subtitle {
+                font-size: 0.85rem;
+            }
+            .share-app-url-input {
+                font-size: 0.78rem !important;
+            }
+            .share-btn-action {
+                font-size: 0.8rem;
+                padding: 0.45rem 0.6rem;
+            }
+            .share-btn-action i, 
+            .share-btn-action svg {
+                width: 12px !important;
+                height: 12px !important;
+            }
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            background: var(--cream);
+            width: 90%;
+            max-width: 500px;
+            max-height: 85vh;
+            border-radius: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .modal-overlay.show .modal-content {
+            transform: translateY(0);
+        }
+        
+        /* Quick Search Styles */
+        .quick-search-section {
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            border-radius: 1.2rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.6);
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .search-input-wrapper:focus-within {
+            border-color: var(--navy-light);
+            box-shadow: 0 15px 35px rgba(30, 58, 138, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 1.2rem;
+            color: var(--ink-light);
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+        }
+
+        .quick-search-input {
+            width: 100%;
+            padding: 1.2rem 1.2rem 1.2rem 3rem;
+            border: none;
+            background: transparent;
+            font-size: 1.05rem;
+            color: var(--ink);
+            font-family: Arial, sans-serif;
+            outline: none;
+            padding-right: 3.5rem;
+        }
+
+        .quick-search-input::placeholder {
+            color: #d0d0d0;
+            opacity: 1;
+        }
+        
+        ::placeholder {
+            color: #d0d0d0;
+            opacity: 1;
+        }
+
+        @media (max-width: 480px) {
+            ::placeholder {
+                font-size: 0.9em;
+            }
+        }
+
+        .clear-search-btn {
+            position: absolute;
+            left: 0.8rem;
+            background: none;
+            border: none;
+            color: var(--ink-light);
+            cursor: pointer;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .clear-search-btn:hover {
+            background: rgba(30, 58, 138, 0.05);
+            color: var(--navy);
+        }
+
+        .search-results-container {
+            margin-top: 1rem;
+            background: white;
+            border-radius: 1.2rem;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border: 1px solid rgba(30, 58, 138, 0.1);
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            max-height: 0;
+        }
+
+        .search-results-container.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+            max-height: 500px; 
+            overflow-y: auto;
+        }
+
+        .search-loader {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            color: var(--ink-light);
+            gap: 1rem;
+            flex-direction: column;
+        }
+
+        .search-results-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .search-result-item {
+            padding: 1rem 1.2rem;
+            border-bottom: 1px solid rgba(30, 58, 138, 0.05);
+            cursor: pointer;
+            transition: background 0.2s;
+            text-align: right;
+            display: block;
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-item:hover {
+            background: rgba(30, 58, 138, 0.02);
+        }
+
+        .result-sura-info {
+            font-size: 0.85rem;
+            color: var(--navy);
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .result-aya-text {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: var(--ink);
+            font-family: 'Amiri', serif;
+        }
+
+        .aya-highlight {
+            color: var(--navy);
+            background: rgba(212, 175, 55, 0.2);
+            border-radius: 4px;
+            padding: 0 2px;
+            font-weight: bold;
+        }
+
+        /* Expanded Card View for Ayah */
+        .aya-expanded-card {
+            padding: 1.5rem;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .expanded-verse-text {
+            font-size: 1.6rem;
+            line-height: 2.2;
+            color: var(--ink);
+            margin-bottom: 1.5rem;
+            font-family: 'Amiri', serif;
+        }
+
+        .expanded-sura-info {
+            color: var(--ink-light);
+            font-family: Arial, sans-serif;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(30, 58, 138, 0.05);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+        }
+
+        .expanded-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .ayah-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1rem;
+            background: rgba(30, 58, 138, 0.05);
+            color: var(--navy);
+            border: none;
+            border-radius: 0.8rem;
+            font-size: 0.85rem;
+            font-family: Arial, sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .ayah-action-btn:hover {
+            background: var(--navy);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .tafseer-box {
+            margin-top: 1.5rem;
+            padding: 1.2rem;
+            background: rgba(212, 175, 55, 0.05);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 0.8rem;
+            text-align: right;
+            font-family: Arial, sans-serif;
+            font-size: 1rem;
+            line-height: 1.8;
+            display: none;
+            color: var(--ink);
+        }
+
+        .tafseer-box.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(30, 58, 138, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+        }
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--navy);
+            margin: 0;
+        }
+        .close-modal-btn {
+            background: none;
+            border: none;
+            color: var(--ink-light);
+            cursor: pointer;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s, color 0.2s;
+        }
+        .close-modal-btn:hover {
+            background: rgba(30, 58, 138, 0.05);
+            color: var(--navy);
+        }
+        
+        .modal-tabs {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid rgba(30, 58, 138, 0.1);
+        }
+        .modal-tab {
+            flex: 1;
+            padding: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--ink-light);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .modal-tab.active {
+            color: var(--navy);
+            border-bottom-color: var(--navy);
+            background: rgba(30, 58, 138, 0.02);
+        }
+        
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .index-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .index-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: white;
+            border-radius: 0.8rem;
+            text-decoration: none;
+            color: var(--ink);
+            border: 1px solid rgba(30, 58, 138, 0.05);
+            transition: all 0.2s;
+        }
+        .index-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-color: rgba(30, 58, 138, 0.15);
+        }
+        .item-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: rgba(30, 58, 138, 0.05);
+            color: var(--navy);
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-left: 1rem;
+        }
+        .item-name {
+            flex: 1;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--navy);
+            text-align: right;
+        }
+        .item-page {
+            font-size: 0.9rem;
+            color: var(--ink-light);
+            background: var(--cream);
+            padding: 0.3rem 0.6rem;
+            border-radius: 12px;
+            font-family: Arial, sans-serif;
+        }
+        .modal-loader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 0;
+            color: var(--ink-light);
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(30, 58, 138, 0.1);
+            border-top-color: var(--navy);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        @keyframes spin { 
+            to { transform: rotate(360deg); } 
+        }
+
+        /* Widgets Styling */
+        .widget-card {
+            background: var(--bg-glass);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .widget-title {
+            color: var(--navy);
+            margin: 0 0 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .widget-title svg {
+            color: var(--gold);
+        }
+
+        .widget-desc {
+            color: var(--ink-light);
+            font-size: 1.3rem;
+            margin: 0 0 1rem 0;
+            line-height: 1.5;
+        }
+
+        .section-divider {
+            border: none;
+            border-top: 1px solid rgba(30, 58, 138, 0.1);
+            margin: 1rem 0;
+        }
+
+        .merged-search-ai .quick-search-section,
+        .merged-search-ai .ai-assistant-widget {
+            padding: 0;
+        }
+
+        /* AI Input Wrapper */
+        .ai-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 1rem;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .ai-input-wrapper:focus-within {
+            border-color: var(--navy-light);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.15);
+        }
+
+        .ai-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3.5rem;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            color: var(--ink);
+            outline: none;
+        }
+
+        .ai-btn {
+            position: absolute;
+            left: 0.5rem;
+            background: var(--navy);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .ai-btn:hover {
+            transform: scale(1.05);
+            background: var(--gold);
+        }
+
+        .ai-btn:disabled {
+            background: var(--ink-light);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* AI Results */
+        .ai-response-container {
+            margin-top: 1rem;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding-top: 1rem;
+        }
+
+        .ai-loader {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--navy-light);
+            font-weight: 500;
+            font-size: 0.95rem;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .ai-pulse {
+            width: 12px;
+            height: 12px;
+            background-color: var(--gold);
+            border-radius: 50%;
+            animation: aiPulse 1.5s infinite ease-in-out;
+        }
+
+        @keyframes aiPulse {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.8); opacity: 0.5; }
+        }
+
+        .ai-result-box {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            border: 1px solid rgba(37, 99, 235, 0.1);
+        }
+
+        .ai-result-sura {
+            font-size: 0.9rem;
+            color: var(--navy-light);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
+        .ai-result-sura::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: var(--gold);
+            border-radius: 50%;
+        }
+
+        .ai-result-verse {
+            font-size: 1.4rem;
+            color: var(--ink);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            font-family: 'Amiri', 'Tajawal', serif;
+            text-align: center;
+        }
+
+        .ai-result-tafseer {
+            font-size: 0.95rem;
+            color: var(--ink-light);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: rgba(0,0,0,0.02);
+            border-radius: 0.75rem;
+            border-right: 3px solid var(--gold);
+        }
+
+        .ai-result-spiritual {
+            font-size: 0.95rem;
+            color: var(--navy);
+            line-height: 1.6;
+            margin-bottom: 1.25rem;
+            font-style: italic;
+        }
+
+        .ai-go-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--navy);
+            color: white;
+            text-decoration: none;
+            border-radius: 0.75rem;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .ai-go-btn:hover {
+            background: var(--gold);
+            transform: translateY(-2px);
+        }
+        
+        .ai-error-box {
+            color: #dc2626;
+            background: #fee2e2;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        /* Share App Card Styles */
+        .share-app-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            padding: 2rem;
+            border-radius: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            box-shadow: 0 10px 30px rgba(30, 58, 138, 0.03);
+            backdrop-filter: blur(8px);
+            font-family: 'Amiri', serif;
+            position: relative;
+            overflow: hidden;
+            text-align: right;
+        }
+
+        .share-app-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--gold-light), var(--gold), var(--gold-light));
+        }
+
+        .share-app-icon-wrapper {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.1);
+        }
+
+        .share-app-icon-wrapper i, .share-app-icon-wrapper svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .share-app-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            text-align: right;
+            width: 100%;
+        }
+
+        .share-app-title {
+            color: var(--navy);
+            margin: 0;
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+
+        .share-app-subtitle {
+            margin: 0 0 0.8rem 0;
+            font-size: 1.1rem;
+            color: var(--ink-light);
+            line-height: 1.6;
+        }
+
+        .share-app-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--cream);
+            border: 1px solid rgba(30, 58, 138, 0.08);
+            padding: 0.4rem;
+            border-radius: 1rem;
+            width: 100%;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);
+        }
+
+        .share-app-url-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            color: var(--navy);
+            font-family: system-ui, -apple-system, sans-serif;
+            font-size: 1rem;
+            padding: 0.5rem 0.8rem;
+            direction: ltr;
+            outline: none;
+            width: 100%;
+        }
+
+        .share-app-actions-btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .share-btn-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.75rem;
+            font-family: 'Amiri', serif;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .copy-action-btn {
+            background: #f1f5f9;
+            color: var(--ink-light);
+        }
+
+        .copy-action-btn:hover {
+            background: #e2e8f0;
+            color: var(--ink);
+        }
+
+        .copy-action-btn.success-state {
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+        }
+
+        .share-now-btn {
+            background: linear-gradient(135deg, var(--navy-light), var(--navy));
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+        }
+
+        .share-now-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+            filter: brightness(1.1);
+        }
+
+        /* Toast notifications system */
+        .tibyan-toast-container {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .tibyan-toast-container.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .tibyan-toast {
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(8px);
+            color: white;
+            padding: 0.8rem 1.6rem;
+            border-radius: 50px;
+            font-family: Arial, sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .tibyan-toast.success {
+            border-left: 4px solid var(--gold);
+        }
+
+        .tibyan-toast.error {
+            border-left: 4px solid #ef4444;
+        }
+
+        .tibyan-toast svg {
+            width: 18px;
+            height: 18px;
+            color: var(--gold);
+        }
+
+        /* Responsive refinements for share app card */
+        @media (max-width: 768px) {
+            .share-app-card {
+                flex-direction: column;
+                padding: 1.5rem;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .share-app-content {
+                text-align: center;
+            }
+
+            .share-app-input-wrapper {
+                flex-direction: column;
+                padding: 0.75rem;
+                gap: 0.75rem;
+            }
+
+            .share-app-url-input {
+                text-align: center;
+            }
+
+            .share-app-actions-btn-group {
+                width: 100%;
+            }
+
+            .share-btn-action {
+                flex: 1;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .share-app-card {
+                padding: 1.2rem;
+                margin-top: 1.5rem;
+                margin-bottom: 1.5rem;
+                border-radius: 1.2rem;
+            }
+
+            .share-app-title {
+                font-size: 1.2rem;
+            }
+
+            .share-app-subtitle {
+                font-size: 0.95rem;
+            }
+
+            .share-app-url-input {
+                font-size: 0.82rem !important;
+                padding: 0.4rem;
+            }
+
+            .share-btn-action {
+                font-size: 0.85rem;
+                padding: 0.5rem 0.8rem;
+            }
+
+            .share-btn-action i, 
+            .share-btn-action svg {
+                width: 14px !important;
+                height: 14px !important;
+            }
+            
+            .share-app-input-wrapper {
+                border-radius: 0.8rem;
+            }
         }
     </style>
 </head>
-
 <body>
-    <!-- الشريط العلوي -->
-    <footer class="app-footer" id="appFooter">
-        <div class="footer-inner">
-            <!-- القسم الأيمن -->
-            <div class="footer-right">
-                <div class="footer-nav">
-                    <a href="index.html" class="home-btn" title="الرئيسية">
-                        <i data-lucide="home"></i>
-                        <span>الرئيسية</span>
-                    </a>
-                    <div class="quran-font-tool-footer" id="quranFontTool">
-                        <button type="button" class="quran-font-toggle-footer" id="quranFontToggle" title="حجم الخط">
-                            <i data-lucide="type"></i>
-                            <span>خط</span>
-                        </button>
-                        <div class="quran-font-actions-footer" id="quranFontActions" aria-hidden="true">
-                            <button type="button" class="quran-font-btn" id="quranFontMinus" title="تصغير الخط">A-</button>
-                            <button type="button" class="quran-font-btn" id="quranFontPlus" title="تكبير الخط">A+</button>
-                        </div>
+    <div class="container">
+        
+        <div class="header-section">
+            <img src="img/logo.png" alt="شعار القرآن" class="logo" onerror="this.src='img/app-logo11.png'; this.onerror=null;">
+            <h1>مصحف خُطى</h1>
+            <div class="subtitle">تلاوة وتُدبر</div>
+        </div>
+
+        <div class="cards-grid" id="actionCards">
+            <!-- Cards will be populated by JS -->
+            <button type="button" onclick="openIndexModal(event)" class="smart-card" style="font-family: inherit; cursor: pointer; text-align: right; width: 100%; outline: none;">
+                <div class="card-icon-wrapper">
+                    <i data-lucide="list"></i>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">فهرس السور والأجزاء</div>
+                    <div class="card-desc">تصفح المصحف بالسور والأجزاء</div>
+                </div>
+                <i data-lucide="chevron-left" class="chevron-icon"></i>
+            </button>
+
+            <a href="quran.html?page=1" class="smart-card">
+                <div class="card-icon-wrapper">
+                    <i data-lucide="book-open"></i>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">البدء من الفاتحة</div>
+                    <div class="card-desc">قراءة المصحف من البداية</div>
+                </div>
+                <i data-lucide="chevron-left" class="chevron-icon"></i>
+            </a>
+        </div>
+        
+        
+        <!-- إدخال مخصص للمزاج -->
+        <div style="margin-bottom: 1rem; display: none !important; gap: 0.5rem; width: 100%;">
+            <input type="text" id="customMoodInput" placeholder="اكتب ما تشعر به.. أو موضوع تحب استحضار آيات عنه..." style="flex: 1; padding: 1rem; border-radius: 1rem; border: 1px solid rgba(255, 255, 255, 0.1); background: var(--cream); color: var(--ink); font-family: 'Amiri', serif; font-size: 1.1rem; outline: none; box-shadow: 0 2px 10px rgba(0,0,0,0.05);" onkeypress="if(event.key === 'Enter') requestCustomMoodVerse()">
+            <button onclick="requestCustomMoodVerse()" class="mood-btn" style="background: var(--navy); color: white; padding: 0 1.5rem; border: none;">
+                <i data-lucide="sparkles" style="width: 20px; height: 20px;"></i>
+                <span>استلهم</span>
+            </button>
+        </div>
+
+        <div class="mood-grid" style="display: none !important; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; margin-bottom: 2.5rem; width: 100%;">
+            <button onclick="requestMoodVerse('أشعر بالحزن والضيق', 'sad')" class="mood-btn" style="background: rgba(59, 130, 246, 0.05); color: #2563eb; border: 1px solid rgba(59, 130, 246, 0.15);">
+                <i data-lucide="cloud-rain" style="width: 20px; height: 20px;"></i>
+                <span>أشعر بالحزن</span>
+            </button>
+            <button onclick="requestMoodVerse('أشعر بالقلق والتوتر', 'anxious')" class="mood-btn" style="background: rgba(245, 158, 11, 0.05); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.15);">
+                <i data-lucide="wind" style="width: 20px; height: 20px;"></i>
+                <span>أشعر بالقلق</span>
+            </button>
+            <button onclick="requestMoodVerse('أمر بضائقة ومحنة', 'hardship')" class="mood-btn" style="background: rgba(220, 38, 38, 0.05); color: #dc2626; border: 1px solid rgba(220, 38, 38, 0.15);">
+                <i data-lucide="shield-alert" style="width: 20px; height: 20px;"></i>
+                <span>في ضائقة</span>
+            </button>
+            <button onclick="requestMoodVerse('أبحث عن الطمأنينة والأمل', 'peace')" class="mood-btn" style="background: rgba(16, 185, 129, 0.05); color: #059669; border: 1px solid rgba(16, 185, 129, 0.15);">
+                <i data-lucide="sun" style="width: 20px; height: 20px;"></i>
+                <span>أبحث عن الطمأنينة</span>
+            </button>
+        </div>
+        
+        <!-- قسم البحث السريع و تبيان الذكي -->
+        <div class="merged-search-ai widget-card">
+            <!-- البحث السريع -->
+            <div class="quick-search-section">
+                <h3 class="widget-title"><i data-lucide="search"></i> البحث السريع</h3>
+                <p class="widget-desc">ابحث عن أي آية، كلمة، أو رقم سورة بسهولة ومباشرة.</p>
+                <div class="search-input-wrapper">
+                   
+                    <input type="text" id="quickSearchInput" class="quick-search-input" placeholder="اكتب للبحث (مثال: طه ما أنزلنا...)">
+                    <button id="clearSearchBtn" class="clear-search-btn" style="display: none;" title="مسح">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+                
+                <div id="searchResultsContainer" class="search-results-container">
+                    <div id="searchLoader" class="search-loader" style="display: none;">
+                        <div class="spinner"></div>
+                        <span>جاري البحث...</span>
                     </div>
-                    <button class="search-btn" id="searchBtn" title="البحث والفهرس">
-                        <i data-lucide="search"></i>
-                        <span>بحث</span>
-                    </button>
-                    <button type="button" class="nav-btn" id="returnBookmarkBtn" title="العودة لآخر موضع">
-                        <i data-lucide="bookmark"></i>
-                        <span>علامة</span>
-                    </button>
-                    <button type="button" class="favorites-btn" id="favoritesBtn" title="المفضلة">
-                        <i data-lucide="heart"></i>
-                        <span>مفضلة</span>
-                    </button>
-                    <button type="button" class="theme-btn" id="themeBtn" title="تغيير الثيم">
-                        <i data-lucide="sun"></i>
-                    </button>
+                    <!-- Results wrapper -->
+                    <div id="searchResultsWrapper">
+                        <ul id="searchResultsList" class="search-results-list"></ul>
+                    </div>
+                    <!-- Expanded view -->
+                    <div id="searchExpandedView" class="aya-expanded-card" style="display: none;">
+                        <div id="expandedSuraInfo" class="expanded-sura-info"></div>
+                        <div id="expandedVerseText" class="expanded-verse-text"></div>
+                        <div class="expanded-actions">
+                            <button class="ayah-action-btn" onclick="copyExpandedVerse()">
+                                <i data-lucide="copy"></i> نسخ
+                            </button>
+                            <button class="ayah-action-btn" onclick="toggleTafseer()">
+                                <i data-lucide="book-open"></i> التفسير
+                            </button>
+                            <a id="goToVerseBtn" href="#" class="ayah-action-btn">
+                                <i data-lucide="external-link"></i> الانتقال للآية
+                            </a>
+                            <button class="ayah-action-btn" onclick="askTibyanAboutExpandedVerse()" style="display: none;">
+                                <i data-lucide="bot"></i> تبيان AI
+                            </button>
+                            <button class="ayah-action-btn" onclick="closeExpandedView()">
+                                <i data-lucide="arrow-right"></i> عودة
+                            </button>
+                        </div>
+                        <div id="expandedTafseerBox" class="tafseer-box"></div>
+                    </div>
                 </div>
             </div>
 
+            <hr class="section-divider" style="display: none !important;">
+
+            <!-- تبيان الذكي -->
+            <div class="ai-assistant-widget" style="display: none !important;">
+                <h3 class="widget-title"><i data-lucide="sparkles"></i> تبيان الذكي</h3>
+                <p class="widget-desc">تذكرت المعنى ونسيت الآية؟ اكتب فكرتك أو حالتك وسيقوم التبيان بمساعدتك في إيجادها.</p>
+                
+                <div class="ai-input-wrapper">
+                    <input type="text" id="aiHintInput" class="quick-search-input ai-input" placeholder="مثال: آية تتحدث عن الصبر ومواساة الحزين...">
+                    <button id="askAiBtn" class="ai-btn" title="اسأل تبيان">
+                        <i data-lucide="bot"></i>
+                    </button>
+                </div>
+                
+                <div id="aiResponseContainer" class="ai-response-container" style="display: none;">
+                    <div id="aiLoader" class="ai-loader" style="display: none;">
+                        <div class="ai-pulse"></div>
+                        <span>جاري التفكير...</span>
+                    </div>
+                    <div id="aiResultBox" class="ai-result-box" style="display: none;">
+                        <div class="ai-result-sura" id="aiResultSura"></div>
+                        <div class="ai-result-verse" id="aiResultVerse"></div>
+                        <div class="ai-result-tafseer" id="aiResultTafseer"></div>
+                        <div class="ai-result-spiritual" id="aiResultSpiritual"></div>
+                        <a id="aiGoToVerseBtn" href="#" class="ai-go-btn">
+                            <i data-lucide="book-open"></i> اقرأ من المصحف
+                        </a>
+                    </div>
+                    <div id="aiErrorBox" class="ai-error-box" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dedication-card">
+            <div class="dedication-text">
+                إلى القلب الذي أفاض الى الله بالخير إن شاء عزوجل .. إلى روح الوالدة :
+                <br>
+                <div class="dedication-name">مَعْجَبَة بنت أحمد علوي</div>
+                <br>
+                نرفع أكف الضراعة أن يكون هذا العمل القرآني صدقة جارية تنير قبرها، وتؤنس وحشتها، وتثقّل موازينها.
+                <br><br>
+                إلى جنات الخلد يا أمي، حتى نلقاكِ عند غفور رحيم.
+            </div>
+        </div>
+        
+        <!-- Share App Card Section -->
+        <div class="share-app-card">
+            <div class="share-app-icon-wrapper">
+                <i data-lucide="share-2"></i>
+            </div>
+            <div class="share-app-content">
+                <h3 class="share-app-title">انشر الفائدة، شارك التطبيق!</h3>
+                <p class="share-app-subtitle">هل أعجبك التطبيق؟ شاركه مع أصدقائك بلمسة واحدة لتبقوا على اتصال دائماً.</p>
+                
+                <div class="share-app-input-wrapper">
+                    <input type="text" id="shareAppUrlInput" readonly placeholder="https://yourdomain.com" class="share-app-url-input">
+                    <div class="share-app-actions-btn-group">
+                        <button type="button" id="shareAppCopyBtn" class="share-btn-action copy-action-btn" title="نسخ الرابط">
+                            <i data-lucide="copy"></i>
+                        </button>
+                        <button type="button" id="shareAppShareBtn" class="share-btn-action share-now-btn" title="مشاركة الآن">
+                            <i data-lucide="send"></i>
+                        </button>
+                    </div>
+                </div>
+                <!-- hidden fallback input for legacy copying mechanics -->
+                <input type="text" id="shareAppFallbackInput" aria-hidden="true" style="position: absolute; left: -9999px; opacity: 0;">
+            </div>
+        </div>
+        
+        <div id="pwaContainer" class="pwa-info hidden">
+            <h3 class="pwa-title">تثبيت التطبيق (بدون إنترنت)</h3>
+            <p>يمكنك تثبيت هذا التطبيق على جهازك للوصول السريع وللقراءة دون الحاجة للاتصال بالإنترنت لاحقاً.</p>
+            <button id="installAppBtn" class="install-btn">
+                <i data-lucide="download"></i>
+                تثبيت التطبيق الآن
+            </button>
+        </div>
+
+        <!-- AI Settings Button (Global) -->
+        <div style="margin-top: 1.5rem; text-align: center; display: none !important;">
+            <button type="button" onclick="openApiKeyModal()" class="install-btn" style="background: linear-gradient(135deg, var(--ink), var(--ink-light)); margin: 0 auto;">
+                <i data-lucide="settings"></i>
+                إعدادات الذكاء الاصطناعي (API Key)
+            </button>
+        </div>
+        
+    </div>
+
+    <footer class="app-footer">
+
+    <!-- API Key Settings Modal -->
+    <div id="apiKeyModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px; text-align: right; font-family: 'Amiri', serif;">
+            <div class="modal-header">
+                <h3 class="modal-title" style="font-family: Arial, sans-serif;">إعدادات Gemini API</h3>
+                <button class="close-modal-btn" onclick="closeApiKeyModal()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 1rem; color: var(--ink-light); font-family: Arial, sans-serif; font-size: 0.95rem;">
+                    يرجى إدخال مفتاح Gemini API الخاص بك لتفعيل وظائف الذكاء الاصطناعي في التطبيق. سيتم حفظ المفتاح محلياً على جهازك فقط.
+                </p>
+                <input type="password" id="geminiApiKeyInput" placeholder="الصق مفتاح API هنا..." style="width: 100%; padding: 1rem; margin-bottom: 1rem; border-radius: 0.8rem; border: 1px solid rgba(0,0,0,0.1); font-family: Arial, sans-serif; font-size: 1rem; outline: none; box-sizing: border-box;">
+                <button onclick="saveApiKey()" style="width: 100%; background: var(--navy); color: white; border: none; padding: 1rem; border-radius: 0.8rem; font-family: Arial, sans-serif; font-size: 1.1rem; font-weight: bold; cursor: pointer;">
+                    حفظ المفتاح
+                </button>
+                <div id="apiKeySaveStatus" style="margin-top: 0.8rem; font-family: Arial, sans-serif; font-size: 0.9rem; color: #059669; display: none;">تم حفظ المفتاح بنجاح!</div>
+            </div>
+        </div>
+    </div>
+        <div class="developer-card-wrapper">
+            <div class="developer-card">
+                <span class="developer-label">
+                    <i data-lucide="code-2"></i>
+                    مطور التطبيق
+                </span>
+                <span class="developer-name-highlight">صدام القزع</span>
+                
+                <div class="contact-icons">
+                    <a href="tel:+967777967272" class="contact-icon" title="اتصال">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="22" height="22" fill="#0ea5e9"><path d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z"/></svg>
+                    </a>
+                    <a href="https://wa.me/967777967272" class="contact-icon" title="واتساب" target="_blank" rel="noopener noreferrer">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="24" height="24" fill="#25D366"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157.1zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7 .9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
+                    </a>
+                    <a href="https://www.facebook.com/s777967272" class="contact-icon" title="فيسبوك" target="_blank" rel="noopener noreferrer">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="24" height="24" fill="#1877F2"><path d="M504 256C504 119 393 8 256 8S8 119 8 256c0 123.78 90.69 226.38 209.25 245V327.69h-63V256h63v-54.64c0-62.15 37-96.48 93.67-96.48 27.14 0 55.52 4.84 55.52 4.84v61h-31.28c-30.8 0-40.41 19.12-40.41 38.73V256h68.78l-11 71.69h-57.78V501C413.31 482.38 504 379.78 504 256z"/></svg>
+                    </a>
+                </div>
+            </div>
         </div>
     </footer>
 
-    <!-- شريط التقدم اليومي -->
-    <div class="daily-progress-bar" id="dailyProgressBar" style="display: none;">
-        <div class="daily-progress-fill" id="dailyProgressFill"></div>
-        <div class="daily-progress-label">الورد اليومي</div>
-    </div>
-
-    <main class="reading-area" id="readingArea">
-        <div class="loading-state" id="loadingState">
-            <div class="spinner"></div>
-            <p>جاري تحميل المصحف...</p>
-        </div>
-        <div class="page-view" id="pageView" style="display: none;">
-            <div class="ornament ornament-top" aria-hidden="true"></div>
-            <div class="ornament ornament-bottom" aria-hidden="true"></div>
-            <div class="page-view-inner" id="pageViewInner"></div>
-        </div>
-    </main>
-
-    <!-- نافذة التفسير المنبثقة -->
-    <div class="verse-insight" id="verseInsight">
-        <div class="insight-header">
-            <div class="insight-title">تفسير الآية</div>
-
-
-            <button class="insight-close" id="insightClose">×</button>
-
-        </div>
-        <div class="insight-content">
-            <div id="insightText">جاري تحميل التفسير...</div>
-        </div>
-        <div class="insight-actions">
-            <button class="insight-action-btn" id="copyVerseBtn">نسخ الآية</button>
-            <button class="insight-action-btn" id="copyWithTafseerBtn">نسخ مع التفسير</button>
-            <button class="insight-action-btn" id="shareWhatsAppBtn">مشاركة واتساب</button>
-
-        </div>
-        <span class="insight-span">التفسير الميسر -
-            الطبعة السادسة 1440 - 2019</span>
-    </div>
-
-    <!-- شريط الأزرار السريع -->
-    <div class="verse-action-bar" id="verseActionBar">
-        <div class="action-item">
-            <button class="action-btn" id="copyBtn" title="نسخ">
-                <i data-lucide="copy"></i>
-            </button>
-            <span class="action-label">نسخ</span>
-        </div>
-        <div class="action-item">
-            <button class="action-btn" id="bookmarkBtn" title="وضع علامة">
-                <i data-lucide="bookmark"></i>
-            </button>
-            <span class="action-label">علامة</span>
-        </div>
-        <div class="action-item">
-            <button class="action-btn" id="tafseerBtn" title="تفسير">
-                <i data-lucide="book-open"></i>
-            </button>
-            <span class="action-label">تفسير</span>
-        </div>
-        <div class="action-item">
-            <button class="action-btn" id="audioBtn" title="التلاوة الصوتية">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                </svg>
-            </button>
-            <span class="action-label">تلاوة</span>
-        </div>
-        <div class="action-item">
-            <button class="action-btn" id="favoriteBtn" title="إضافة للمفضلة">
-                <i data-lucide="heart"></i>
-            </button>
-            <span class="action-label">مفضلة</span>
-        </div>
-        <div class="action-item">
-            <button class="action-btn" id="shareBtn" title="مشاركة واتساب">
-                <i data-lucide="share-2"></i>
-            </button>
-            <span class="action-label">مشاركة</span>
+    <!-- Index Modal -->
+    <div class="modal-overlay" id="indexModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">فهرس القرآن الكريم</h3>
+                <button type="button" class="close-modal-btn" onclick="closeIndexModal()" title="إغلاق">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-tabs">
+                <button type="button" class="modal-tab active" onclick="switchTab('suras')">السور</button>
+                <button type="button" class="modal-tab" onclick="switchTab('ajzaa')">الأجزاء</button>
+            </div>
+            <div class="modal-body">
+                <div id="indexLoader" class="modal-loader">
+                    <div class="spinner"></div>
+                    <div>جاري تحميل الفهرس...</div>
+                </div>
+                <div id="surasIndex" class="index-list" style="display: none;"></div>
+                <div id="ajzaaIndex" class="index-list" style="display: none;"></div>
+            </div>
         </div>
     </div>
 
-    <!-- نافذة الآيات المفضلة العصرية -->
-    <div class="favorites-overlay" id="favoritesOverlay"></div>
-    <div class="favorites-panel" id="favoritesPanel">
-        <div class="panel-header">
-            <h3 class="panel-title">
-                <i data-lucide="heart"></i>
-                الآيات المفضلة
-            </h3>
-            <button class="panel-close" id="favoritesClose">
+    <!-- Tibyan AI Chatbot FAB & Modal -->
+    <div class="tibyan-fab" id="openTibyanBtn" onclick="openTibyanModal()" style="display: none !important;">
+        <i data-lucide="sparkles"></i>
+    </div>
+
+    <div class="tibyan-modal" id="tibyanModal" style="display: none !important;">
+        <div class="tibyan-container">
+            <div class="tibyan-header">
+                <div class="tibyan-header-title">
+                    <i data-lucide="bot"></i>
+                    <div>
+                        <h3>تبيان AI</h3>
+                        <p>مساعدك القرآني الموثوق</p>
+                    </div>
+                </div>
+                <button class="tibyan-close" onclick="closeTibyanModal()"><i data-lucide="x"></i></button>
+            </div>
+            
+            <div class="tibyan-prompts" id="tibyanPrompts">
+                <button class="tibyan-prompt-btn" onclick="sendTibyanPrompt('أعطني نبذة شاملة عن هذه الآية فقط.')">نبذة شاملة عن الاية</button>
+                <button class="tibyan-prompt-btn" onclick="sendTibyanPrompt('ما هي معاني الكلمات الغريبة أو الصعبة في هذه الآية فقط؟')">غرائب الكلمات في الاية</button>
+                <button class="tibyan-prompt-btn" onclick="sendTibyanPrompt('ما هو سبب نزول هذه الآية إن وجد؟ اعتمد على سياق هذه الآية فقط.')">سبب النزول</button>
+            </div>
+
+            <div class="tibyan-messages" id="tibyanMessages">
+                <!-- الرسائل ستضاف هنا -->
+            </div>
+
+            <div class="tibyan-input-area">
+                <input type="text" id="tibyanInput" class="tibyan-input" placeholder="اسأل تبيان عما يحيرك في الآيات..." onkeypress="if(event.key === 'Enter') handleTibyanSend()">
+                <button class="tibyan-send" id="tibyanSendBtn" onclick="handleTibyanSend()"><i data-lucide="send"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mood Modal -->
+    <div class="modal-overlay" id="moodModal" style="z-index: 10000;">
+        <div class="modal-content" style="padding: 2rem; text-align: center; background: linear-gradient(135deg, var(--cream) 0%, #fff 100%);">
+            <button type="button" class="close-modal-btn" onclick="closeMoodModal()" title="إغلاق" style="position: absolute; top: 1rem; left: 1rem; background: rgba(0,0,0,0.05); width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:none; cursor:pointer;">
                 <i data-lucide="x"></i>
             </button>
-        </div>
-        <div class="panel-content" id="favoritesList">
-            <!-- قائمة المفضلات ستظهر هنا بتصميم الكاروتس -->
-        </div>
-    </div>
-
-    <!-- لوحة البحث والفهرس -->
-    <div class="search-panel" id="searchPanel">
-        <div class="search-header">
-            <div class="search-title">
-                <i data-lucide="compass" width="24"></i>
-                الفهرس والبحث
+            <div id="moodLoader" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 0;">
+                <div class="spinner" style="border-top-color: #d4af37;"></div>
+                <p style="color: var(--ink-light); margin-top: 1rem; font-family: Arial; font-weight: bold;">نستحضر آية تلامس قلبك...</p>
             </div>
-            <button class="close-btn-v2" id="searchClose">×</button>
-        </div>
-
-        <div class="search-input-container">
-            <input type="text" class="search-input" id="mainSearchInput"
-                placeholder="ابحث عن اسم سورة، رقم صفحة، أو آية...">
-            <i data-lucide="search" class="search-icon-inside" width="18"></i>
-        </div>
-
-        <div class="index-tabs">
-            <div class="tabs-scroll">
-                <button class="index-tab active" data-tab="suras">السور</button>
-                <button class="index-tab" data-tab="verses">الآيات</button>
-                <button class="index-tab" data-tab="pages">انتقال للصفحة</button>
+            <div id="moodContent" style="display: none; text-align: center;">
+                <div style="background: rgba(212, 175, 55, 0.15); color: #927515; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: bold; margin: 0 auto 1.5rem auto; display:inline-block;" id="moodSuraInfo">
+                    سورة ...
+                </div>
+                <div id="moodVerseText" style="font-family: 'Amiri', serif; font-size: 1.8rem; line-height: 2.2; color: var(--navy); margin-bottom: 1.5rem; text-align: center;">
+                </div>
+                <div id="moodTafseer" style="background: rgba(30, 58, 138, 0.03); border: 1px solid rgba(30, 58, 138, 0.1); border-radius: 12px; padding: 1.2rem; margin-bottom: 1rem; font-family: Arial; font-size: 1.05rem; line-height: 1.7; color: var(--ink); text-align: right;">
+                </div>
+                <div id="moodSpiritual" style="background: rgba(212, 175, 55, 0.05); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 12px; padding: 1.2rem; font-family: 'Amiri', serif; font-size: 1.15rem; line-height: 1.8; color: var(--ink); text-align: right; display: none;">
+                </div>
             </div>
-            <div class="search-stats-badge" id="searchResultsCount">0 نتائج</div>
-        </div>
-
-        <div class="index-list" id="indexList">
-            <!-- Data will be populated by JS -->
         </div>
     </div>
-
-    <!-- Floating Info Display -->
-    <div class="floating-info-display" id="floatingInfoDisplay">
-        <button type="button" class="nav-btn-float" id="btnPrev" title="السابق">
-            <i data-lucide="chevron-right"></i>
-        </button>
-        <div class="floating-info-separator"></div>
-        <div class="floating-info-item" id="floatingSuraName">الفاتحة</div>
-        <div class="floating-info-separator"></div>
-        <div class="floating-info-item" id="floatingPageIndicator">ص 1</div>
-        <div class="floating-info-separator"></div>
-        <div class="floating-info-item" id="floatingJuzNumber">جزء 1</div>
-        <div class="floating-info-separator"></div>
-        <button type="button" class="nav-btn-float" id="btnNext" title="التالي">
-            <i data-lucide="chevron-left"></i>
-        </button>
-    </div>
-
-    <!-- Audio Player Container -->
-    <div id="audioPlayerContainer"></div>
-
-    <script src="assets/js/lib/lucide.min.js"></script>
-    <script src="js/AudioService.js"></script>
-    <script src="js/AudioPlayer.js"></script>
-    <script src="js/quran.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.lucide) lucide.createIcons();
+        // Tibyan AI Logic
+        window.currentTibyanContext = null;
+
+        function openTibyanModal(contextString = null) {
+            window.currentTibyanContext = contextString;
+            document.getElementById('tibyanModal').classList.add('active');
+            if (window.lucide) window.lucide.createIcons();
             
-            // Initialize audio player
-            if (window.audioPlayer) {
-                const audioContainer = document.getElementById('audioPlayerContainer');
-                audioPlayer.initUI(audioContainer);
-                audioPlayer.show(false); // Hidden by default
+            // Auto focus input
+            setTimeout(() => { document.getElementById('tibyanInput').focus(); }, 100);
+            
+            // If opened with context, show a small system message (locally) to let the user know
+            if(contextString) {
+                const contextMsg = "تم استحضار الآية:\n" + contextString + "\n\nتفضل بسؤال تبيان.";
+                appendTibyanMessage(contextMsg, 'bot');
+            }
+        }
+
+        function closeTibyanModal() {
+            document.getElementById('tibyanModal').classList.remove('active');
+            window.currentTibyanContext = null;
+        }
+
+        function sendTibyanPrompt(text) {
+            document.getElementById('tibyanInput').value = text;
+            handleTibyanSend();
+        }
+
+        function appendTibyanMessage(text, sender) {
+            const container = document.getElementById('tibyanMessages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `tibyan-msg ${sender}`;
+            
+            if(sender === 'bot') {
+                const mdDiv = document.createElement('div');
+                mdDiv.className = 'markdown-body';
+                mdDiv.innerHTML = window.marked ? window.marked.parse(text) : text;
+                msgDiv.appendChild(mdDiv);
+            } else {
+                msgDiv.textContent = text;
+            }
+            
+            container.appendChild(msgDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function handleTibyanSend() {
+            const input = document.getElementById('tibyanInput');
+            const sendBtn = document.getElementById('tibyanSendBtn');
+            const text = input.value.trim();
+            if (!text) return;
+
+            input.value = '';
+            appendTibyanMessage(text, 'user');
+            
+            input.disabled = true;
+            sendBtn.disabled = true;
+            
+            // Add a temporary typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'tibyan-msg bot typing-indicator';
+            
+            const loadingMessages = [
+                'تبيان يحلل سؤالك...',
+                'تبيان يبحث في أمهات الكتب...',
+                'تبيان يستخلص الإجابة...',
+                'تبيان يتأمل في الآيات...',
+                'جاري صياغة الإجابة المناسبة...'
+            ];
+            const randomMsg = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+            
+            typingDiv.innerHTML = `${randomMsg} <span class="spinner" style="display:inline-block; border-top-color:var(--navy); width:12px; height:12px; border-width:2px; margin-right:5px; vertical-align:middle;"></span>`;
+            document.getElementById('tibyanMessages').appendChild(typingDiv);
+            document.getElementById('tibyanMessages').scrollTop = document.getElementById('tibyanMessages').scrollHeight;
+
+            try {
+                const response = await fetch('/api/tibyan', {
+                    method: 'POST',
+                    headers: getApiKeyHeaders(),
+                    body: JSON.stringify({ 
+                        message: text,
+                        contextAyah: window.currentTibyanContext
+                    })
+                });
+                
+                typingDiv.remove();
+
+                if (!response.ok) {
+                    const errObj = await response.json().catch(() => null);
+                    throw new Error(errObj?.error || 'حدث خطأ غير معروف');
+                }
+                
+                const data = await response.json();
+                appendTibyanMessage(data.text, 'bot');
+                
+            } catch (err) {
+                typingDiv.remove();
+                console.error(err);
+                const isApiKeyError = err.message && (err.message.includes("API key not valid") || err.message.includes("Gemini"));
+                const errorMessage = isApiKeyError 
+                    ? "عذراً، مفتاح API الخاص بالذكاء الاصطناعي (Gemini) غير صالح أو مفقود. يرجى التوجه للإعدادات."
+                    : "عذراً، حدث خطأ أثناء الاتصال بمصادرنا. الرجاء المحاولة مرة أخرى.";
+                appendTibyanMessage(`**تنبيه:** ${errorMessage}`, 'bot');
+            } finally {
+                input.disabled = false;
+                sendBtn.disabled = false;
+                input.focus();
+            }
+        }
+
+        // Custom Index logic
+        let indexReady = false;
+
+        function closeMoodModal() {
+            document.getElementById('moodModal').classList.remove('show');
+        }
+
+        function requestCustomMoodVerse() {
+            const input = document.getElementById('customMoodInput').value.trim();
+            if(!input) return;
+            requestMoodVerse(input, 'custom');
+        }
+
+        async function requestMoodVerse(mood, type = 'custom') {
+            const modal = document.getElementById('moodModal');
+            const loader = document.getElementById('moodLoader');
+            const content = document.getElementById('moodContent');
+            
+            modal.classList.add('show');
+            loader.style.display = 'flex';
+            content.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/mood', {
+                    method: 'POST',
+                    headers: getApiKeyHeaders(),
+                    body: JSON.stringify({ mood: mood, type: type })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => null);
+                    throw new Error(errorData?.error || 'API Error');
+                }
+                
+                const data = await response.json();
+                
+                document.getElementById('moodSuraInfo').innerText = `سورة ${data.sura} - آية ${data.ayahNumber}`;
+                document.getElementById('moodVerseText').innerText = `{ ${data.verse} }`;
+                document.getElementById('moodTafseer').innerHTML = `<strong>التفسير المبسط:</strong> ${data.tafseer}`;
+                
+                if (data.spiritualWord) {
+                    document.getElementById('moodSpiritual').innerHTML = `<strong>همسة روحانية:</strong> ${data.spiritualWord}`;
+                    document.getElementById('moodSpiritual').style.display = 'block';
+                } else {
+                    document.getElementById('moodSpiritual').style.display = 'none';
+                }
+                
+                loader.style.display = 'none';
+                content.style.display = 'block';
+            } catch (err) {
+                console.error(err);
+                const isApiKeyError = err.message && (err.message.includes("API key not valid") || err.message.includes("Gemini API key is missing"));
+                const errorMessage = isApiKeyError 
+                    ? "عذراً، مفتاح API الخاص بالذكاء الاصطناعي (Gemini) غير صالح أو مفقود. يرجى إعداد المفتاح من الإعدادات."
+                    : "عذراً، حدث خطأ أثناء الاتصال بالذكاء الاصطناعي. الرجاء المحاولة لاحقاً.";
+                    
+                document.getElementById('moodTafseer').innerText = errorMessage;
+                document.getElementById('moodSpiritual').style.display = 'none';
+                document.getElementById('moodVerseText').innerText = "";
+                document.getElementById('moodSuraInfo').innerText = "تنبيه";
+                loader.style.display = 'none';
+                content.style.display = 'block';
+            }
+        }
+
+        async function openIndexModal(e) {
+            if (e) e.preventDefault();
+            const modal = document.getElementById('indexModal');
+            modal.classList.add('show');
+            if (window.lucide) window.lucide.createIcons();
+            
+            if (!indexReady) {
+                await loadIndexData();
+            }
+        }
+
+        function closeIndexModal() {
+            document.getElementById('indexModal').classList.remove('show');
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.modal-tab').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.modal-tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
+            
+            document.getElementById('surasIndex').style.display = tabId === 'suras' ? 'flex' : 'none';
+            document.getElementById('ajzaaIndex').style.display = tabId === 'ajzaa' ? 'flex' : 'none';
+        }
+
+        async function loadIndexData() {
+            try {
+                let data = await window.QuranDB.get('quran_data');
+                if (!data || !Array.isArray(data) || data.length === 0) {
+                    const response = await fetch('assets/quran.json');
+                    data = await response.json();
+                    window.QuranDB.set('quran_data', data).catch(console.error);
+                }
+                
+                const suras = [];
+                const ajzaa = [];
+                let currentSura = 0;
+                let currentJozz = 0;
+                
+                data.forEach(verse => {
+                    if (verse.sura_no !== currentSura) {
+                        suras.push({
+                            no: verse.sura_no,
+                            name: verse.sura_name_ar.trim(),
+                            page: verse.page
+                        });
+                        currentSura = verse.sura_no;
+                    }
+                    if (verse.jozz !== currentJozz) {
+                        ajzaa.push({
+                            no: verse.jozz,
+                            page: verse.page
+                        });
+                        currentJozz = verse.jozz;
+                    }
+                });
+                
+                // Build Suras HTML
+                const surasHtml = suras.map(s => `
+                    <a href="quran.html?page=${s.page}" class="index-item">
+                        <div class="item-number">${s.no}</div>
+                        <div class="item-name">سورة ${s.name}</div>
+                        <div class="item-page">ص ${s.page}</div>
+                    </a>
+                `).join('');
+                document.getElementById('surasIndex').innerHTML = surasHtml;
+                
+                // Build Ajzaa HTML
+                const ajzaaHtml = ajzaa.map(a => `
+                    <a href="quran.html?page=${a.page}" class="index-item">
+                        <div class="item-number">${a.no}</div>
+                        <div class="item-name">الجزء ${a.no}</div>
+                        <div class="item-page">ص ${a.page}</div>
+                    </a>
+                `).join('');
+                document.getElementById('ajzaaIndex').innerHTML = ajzaaHtml;
+                
+                document.getElementById('indexLoader').style.display = 'none';
+                document.getElementById('surasIndex').style.display = 'flex';
+                indexReady = true;
+            } catch (err) {
+                console.error("Error loading quran index", err);
+                document.getElementById('indexLoader').innerHTML = "<div style='color: #ef4444;'>حدث خطأ أثناء تحميل الفهرس</div>";
+            }
+        }
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Close modal when clicking outside
+        document.getElementById('indexModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeIndexModal();
             }
         });
+
+        // Handle Last Read Memory
+        function populateSmartCards() {
+            try {
+                const cardsGrid = document.getElementById('actionCards');
+                const lastPage = localStorage.getItem('quran_last_page');
+                let lastSura = localStorage.getItem('quran_last_sura_name');
+                
+                // Generate Continue Reading card if we have a last page
+                if (lastPage && parseInt(lastPage) > 0) {
+                    const continueCard = document.createElement('a');
+                    continueCard.href = `quran.html?page=${lastPage}`;
+                    continueCard.className = 'smart-card card-gold';
+                    
+                    let desc = `صفحة ${lastPage}`;
+                    if (lastSura) {
+                        desc = `سورة ${lastSura}، صفحة ${lastPage}`;
+                    }
+
+                    continueCard.innerHTML = `
+                        <div class="card-icon-wrapper">
+                            <i data-lucide="clock"></i>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-title">متابعة القراءة</div>
+                            <div class="card-desc">${desc}</div>
+                        </div>
+                        <i data-lucide="chevron-left" class="chevron-icon"></i>
+                    `;
+                    
+                    cardsGrid.insertBefore(continueCard, cardsGrid.firstChild);
+                    lucide.createIcons({ root: continueCard }); // refresh icons for new element
+                }
+            } catch (e) {
+                console.error("Local storage access denied or disabled", e);
+            }
+        }
+
+        populateSmartCards();
+
+        // Check if app is running as PWA (standalone)
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://');
+        
+        const pwaContainer = document.getElementById('pwaContainer');
+        const installAppBtn = document.getElementById('installAppBtn');
+        let deferredPrompt;
+
+        if (!isStandalone) {
+            pwaContainer.classList.remove('hidden');
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        installAppBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                pwaContainer.classList.add('hidden');
+            } else {
+                alert('لتثبيت التطبيق، يرجى استخدام قائمة المتصفح واختيار "إضافة إلى الشاشة الرئيسية" (Add to Home Screen)، أو النقر على زر المشاركة لاجهزة الايفون واختيار الاضافة للشاشة.');
+            }
+        });
+        
+        // Register Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('SW Registered in Quran Page', reg))
-                    .catch(err => console.log('SW Registration Failed', err));
+                navigator.serviceWorker.register('/sw.js').then((registration) => {
+                    console.log('ServiceWorker registration successful in landing page');
+                }).catch((error) => {
+                    console.log('ServiceWorker registration failed: ', error);
+                });
             });
         }
-    </script>
-</body>
 
+        // ======= Quick Search Logic =======
+        let quranDataForSearch = null;
+        let tafseerDataForSearch = null;
+        const quickSearchInput = document.getElementById('quickSearchInput');
+        const clearSearchBtn = document.getElementById('clearSearchBtn');
+        const searchResultsContainer = document.getElementById('searchResultsContainer');
+        const searchResultsList = document.getElementById('searchResultsList');
+        const searchLoader = document.getElementById('searchLoader');
+        const searchResultsWrapper = document.getElementById('searchResultsWrapper');
+        const searchExpandedView = document.getElementById('searchExpandedView');
+        let currentExpandedAya = null;
+        let searchTimeout = null;
+
+        function removeTashkeel(text) {
+            if (!text) return "";
+            return text.replace(/[\u0617-\u061A\u064B-\u0652\u06D6-\u06DC\u06DF-\u06E8\u06EA-\u06ED]/g, '');
+        }
+
+        function normalizeArabic(text) {
+            let t = removeTashkeel(text);
+            return t.replace(/[أإآا]/g, 'ا')
+                    .replace(/[يى]/g, 'ي')
+                    .replace(/ة/g, 'ه');
+        }
+
+        async function initSearchData() {
+            if (quranDataForSearch || searchLoader.style.display === 'flex') return;
+            searchLoader.style.display = 'flex';
+            try {
+                let qData = await window.QuranDB.get('quran_data');
+                let tDataRaw = await window.QuranDB.get('tafseer_data_raw');
+
+                if (!qData || !Array.isArray(qData) || qData.length === 0) {
+                    const qRes = await fetch('assets/quran.json');
+                    qData = await qRes.json();
+                    window.QuranDB.set('quran_data', qData).catch(console.error);
+                }
+                
+                if (!tDataRaw || !Array.isArray(tDataRaw) || tDataRaw.length === 0) {
+                    const tRes = await fetch('assets/tafseerMouaser_v03.json');
+                    tDataRaw = await tRes.json();
+                    window.QuranDB.set('tafseer_data_raw', tDataRaw).catch(console.error);
+                }
+
+                quranDataForSearch = qData;
+                
+                // Add normalized text for faster searching
+                quranDataForSearch.forEach(v => {
+                    v.normalizedText = normalizeArabic(v.aya_text);
+                });
+                
+                tafseerDataForSearch = {};
+                tDataRaw.forEach(v => {
+                    tafseerDataForSearch[`${v.sura_no}-${v.aya_no}`] = v.aya_tafseer;
+                });
+                searchLoader.style.display = 'none';
+            } catch(e) {
+                console.error("Error loading search data", e);
+                searchLoader.style.display = 'none';
+                searchLoader.innerHTML = "<span style='color:red'>فشل تحميل البيانات للبحث</span>";
+            }
+        }
+
+        quickSearchInput.addEventListener('focus', () => {
+            initSearchData();
+            if (quickSearchInput.value.trim().length > 0) {
+                searchResultsContainer.classList.add('show');
+            }
+        });
+
+        quickSearchInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            if (query.length > 0) {
+                clearSearchBtn.style.display = 'flex';
+                searchResultsContainer.classList.add('show');
+                
+                if (searchTimeout) clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => performSearch(query), 300);
+            } else {
+                clearSearchBtn.style.display = 'none';
+                searchResultsContainer.classList.remove('show');
+                searchResultsList.innerHTML = '';
+            }
+        });
+
+        clearSearchBtn.addEventListener('click', () => {
+            quickSearchInput.value = '';
+            clearSearchBtn.style.display = 'none';
+            searchResultsContainer.classList.remove('show');
+            searchResultsList.innerHTML = '';
+            closeExpandedView();
+            quickSearchInput.focus();
+        });
+
+        function performSearch(query) {
+            if (!quranDataForSearch) {
+                // Try again after a short delay if data is still loading
+                setTimeout(() => performSearch(query), 500);
+                return;
+            }
+            
+            closeExpandedView();
+            const normQuery = normalizeArabic(query);
+            
+            // Allow matching parts of verse
+            const results = quranDataForSearch.filter(v => 
+                v.normalizedText.includes(normQuery) || 
+                v.sura_name_ar.includes(query)
+            ).slice(0, 15); // Limit to 15 results
+            
+            renderSearchResults(results, normQuery);
+        }
+
+        function highlightMatch(text, query) {
+            // Very simple highlight
+            return text.replace(new RegExp(`(${query})`, 'gi'), '<span class="aya-highlight">$1</span>');
+        }
+
+        function renderSearchResults(results, normQuery) {
+            searchResultsWrapper.style.display = 'block';
+            
+            if (results.length === 0) {
+                searchResultsList.innerHTML = '<li style="padding: 1rem; text-align: center; color: var(--ink-light);">لا توجد نتائج مطابقة لبحثك.</li>';
+                return;
+            }
+            
+            searchResultsList.innerHTML = results.map(v => {
+                // Approximate representation
+                const cleanText = removeTashkeel(v.aya_text);
+                const strIdx = normalizeArabic(cleanText).indexOf(normQuery);
+                let snippet = cleanText;
+                if (strIdx !== -1 && snippet.length > 100) {
+                    const maxLen = 80;
+                    let start = Math.max(0, strIdx - 20);
+                    let end = Math.min(snippet.length, strIdx + maxLen);
+                    snippet = (start > 0 ? "..." : "") + snippet.substring(start, end) + (end < snippet.length ? "..." : "");
+                }
+                
+                return `
+                <li class="search-result-item" onclick="expandVerse(${v.id})">
+                    <div class="result-sura-info">
+                        <i data-lucide="book-open" style="width: 12px; height: 12px;"></i>
+                        سورة ${v.sura_name_ar} - آية ${v.aya_no}
+                    </div>
+                    <div class="result-aya-text">${snippet}</div>
+                </li>
+                `;
+            }).join('');
+            
+            if (window.lucide) lucide.createIcons();
+            
+            // Close search dropdown on clicking outside
+            document.addEventListener('click', function closeSearch(e) {
+                if (!e.target.closest('.quick-search-section')) {
+                    searchResultsContainer.classList.remove('show');
+                    document.removeEventListener('click', closeSearch);
+                }
+            });
+        }
+
+        function expandVerse(id) {
+            currentExpandedAya = quranDataForSearch.find(v => v.id === id);
+            if (!currentExpandedAya) return;
+            
+            searchResultsWrapper.style.display = 'none';
+            searchExpandedView.style.display = 'block';
+            
+            document.getElementById('expandedSuraInfo').innerHTML = `
+                <i data-lucide="book-open" style="width: 16px; height: 16px;"></i>
+                سورة ${currentExpandedAya.sura_name_ar} • الآية ${currentExpandedAya.aya_no} • صفحة ${currentExpandedAya.page}
+            `;
+            document.getElementById('expandedVerseText').innerHTML = currentExpandedAya.aya_text;
+            
+            // Append target aya info onto local storage or URL so the quran page can scroll to it.
+            // Currently quran.html scrolls to highlighted verse by parsing query string.
+            document.getElementById('goToVerseBtn').href = `quran.html?page=${currentExpandedAya.page}&sura=${currentExpandedAya.sura_no}&aya=${currentExpandedAya.aya_no}`;
+            
+            const tafseerBox = document.getElementById('expandedTafseerBox');
+            tafseerBox.classList.remove('show');
+            const key = `${currentExpandedAya.sura_no}-${currentExpandedAya.aya_no}`;
+            if (tafseerDataForSearch && tafseerDataForSearch[key]) {
+                tafseerBox.innerHTML = `<strong>التفسير الميسر:</strong><br>${tafseerDataForSearch[key]}`;
+            } else {
+                tafseerBox.innerHTML = "التفسير غير متوفر.";
+            }
+            
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function closeExpandedView() {
+            searchExpandedView.style.display = 'none';
+            searchResultsWrapper.style.display = 'block';
+            const tafseerBox = document.getElementById('expandedTafseerBox');
+            tafseerBox.classList.remove('show');
+        }
+
+        function askTibyanAboutExpandedVerse() {
+            if (!currentExpandedAya) return;
+            const contextStr = `سورة ${currentExpandedAya.sura_name_ar} - آية ${currentExpandedAya.aya_no}: ${currentExpandedAya.aya_text}`;
+            openTibyanModal(contextStr);
+        }
+
+        function copyExpandedVerse() {
+            if (!currentExpandedAya) return;
+            const textToCopy = `{ ${currentExpandedAya.aya_text} }\n[سورة ${currentExpandedAya.sura_name_ar.trim()}: ${currentExpandedAya.aya_no}]`;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const copyBtn = document.querySelector('.expanded-actions button:first-child');
+                const origHtml = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i data-lucide="check"></i> تم النسخ';
+                if (window.lucide) lucide.createIcons();
+                setTimeout(() => {
+                    copyBtn.innerHTML = origHtml;
+                    if (window.lucide) lucide.createIcons();
+                }, 2000);
+            });
+        }
+
+        function toggleTafseer() {
+            const box = document.getElementById('expandedTafseerBox');
+            box.classList.toggle('show');
+        }
+
+        // ======= Tibyan AI widget logic =======
+        const aiHintInput = document.getElementById('aiHintInput');
+        const askAiBtn = document.getElementById('askAiBtn');
+        const aiResponseContainer = document.getElementById('aiResponseContainer');
+        const aiLoader = document.getElementById('aiLoader');
+        const aiResultBox = document.getElementById('aiResultBox');
+        const aiErrorBox = document.getElementById('aiErrorBox');
+
+        const aiResultSura = document.getElementById('aiResultSura');
+        const aiResultVerse = document.getElementById('aiResultVerse');
+        const aiResultTafseer = document.getElementById('aiResultTafseer');
+        const aiResultSpiritual = document.getElementById('aiResultSpiritual');
+        const aiGoToVerseBtn = document.getElementById('aiGoToVerseBtn');
+
+        async function askTibyanAI() {
+            const hint = aiHintInput.value.trim();
+            if (!hint) return;
+            
+            if (!quranDataForSearch) {
+                initSearchData();
+            }
+
+            // Reset UI
+            aiResponseContainer.style.display = 'block';
+            aiResultBox.style.display = 'none';
+            aiErrorBox.style.display = 'none';
+            aiLoader.style.display = 'flex';
+            askAiBtn.disabled = true;
+
+            try {
+                const res = await fetch('/api/smart-search', {
+                    method: 'POST',
+                    headers: getApiKeyHeaders(),
+                    body: JSON.stringify({ hint: hint })
+                });
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error || 'حدث خطأ في الاتصال بتبيان');
+                }
+
+                const data = await res.json();
+
+                // Populate data
+                aiResultSura.innerText = `سورة ${data.sura}`;
+                aiResultVerse.innerText = `{ ${data.verse} }`;
+                aiResultTafseer.innerHTML = `<strong>التفسير المبسط:</strong> ${data.tafseer}`;
+                aiResultSpiritual.innerText = `💬 ${data.spiritualWord}`;
+                
+                // Construct search url or simple routing to quran
+                // We'll need a generic link that tries to locate it or we can pass sura name and ayah text to our local search if we want
+                // For simplicity let's rely on standard search routing logic if we have the page number natively, but the AI won't know the exact page directly. 
+                // However, we can use quran.html with query params since it has search/match logic if available.
+                // Or best, redirect to quran.html?search=...
+                aiGoToVerseBtn.href = `quran.html`;
+                
+                // Show result
+                let matchedVerseId = null;
+                if (quranDataForSearch) {
+                    const cleanGenVerse = removeTashkeel(data.verse).trim();
+                    const matched = quranDataForSearch.find(v => {
+                        return removeTashkeel(v.aya_text).includes(cleanGenVerse) || cleanGenVerse.includes(removeTashkeel(v.aya_text));
+                    });
+                    if (matched) {
+                        aiGoToVerseBtn.href = `quran.html?page=${matched.page}&sura=${matched.sura_no}&aya=${matched.aya_no}`;
+                    } else {
+                        aiGoToVerseBtn.href = `quran.html`;
+                    }
+                } else {
+                    aiGoToVerseBtn.href = `quran.html`;
+                }
+
+                aiLoader.style.display = 'none';
+                aiResultBox.style.display = 'block';
+                
+                if (window.lucide) lucide.createIcons();
+
+            } catch (err) {
+                console.error("AI Error: ", err);
+                aiLoader.style.display = 'none';
+                aiErrorBox.innerText = err.message || "حدث خطأ غير متوقع، يرجى المحاولة لاحقاً.";
+                aiErrorBox.style.display = 'block';
+            } finally {
+                askAiBtn.disabled = false;
+            }
+        }
+
+        askAiBtn.addEventListener('click', askTibyanAI);
+        aiHintInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                askTibyanAI();
+            }
+        });
+
+        // ======= Share App Feature Logic =======
+        const shareAppCopyBtn = document.getElementById('shareAppCopyBtn');
+        const shareAppShareBtn = document.getElementById('shareAppShareBtn');
+        const shareAppUrlInput = document.getElementById('shareAppUrlInput');
+        const shareAppFallbackInput = document.getElementById('shareAppFallbackInput');
+
+        // Dynamic URL generation conforming to https:// prefix
+        let appUrl = window.location.origin;
+        if (!appUrl.startsWith('https://')) {
+            if (!appUrl.includes('localhost') && !appUrl.includes('127.0.0.1')) {
+                appUrl = appUrl.replace(/^http:\/\//i, 'https://');
+            }
+        }
+
+        function showTibyanToast(message, type = 'success') {
+            const container = document.getElementById('tibyanToastContainer');
+            if (!container) return;
+            
+            // Create toast item
+            const toast = document.createElement('div');
+            toast.className = `tibyan-toast ${type}`;
+            toast.innerHTML = `
+                <i data-lucide="${type === 'success' ? 'check-circle' : 'alert-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            container.classList.add('show');
+            
+            // Create icon
+            if (window.lucide) {
+                try { lucide.createIcons(); } catch(e) {}
+            }
+            
+            // auto remove
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-20px)';
+                toast.style.transition = 'all 0.4s ease';
+                setTimeout(() => {
+                    toast.remove();
+                    if (container.children.length === 0) {
+                        container.classList.remove('show');
+                    }
+                }, 400);
+            }, 3000);
+        }
+
+        let isCopiedState = false;
+
+        function initShareAppFeature() {
+            if (!shareAppCopyBtn || !shareAppShareBtn || !shareAppUrlInput) return;
+            
+            // Set dynamic URL value on input
+            shareAppUrlInput.value = appUrl;
+            
+            // Setup copy listener
+            shareAppCopyBtn.addEventListener('click', () => {
+                handleCopyLink();
+            });
+            
+            // Setup share listener
+            shareAppShareBtn.addEventListener('click', () => {
+                handleShareLink();
+            });
+            
+            // Web Share API detection / UI adjustments
+            if (!navigator.share) {
+                // Hide share button
+                shareAppShareBtn.style.display = 'none';
+            }
+        }
+
+        function handleCopyLink() {
+            // Event Analytics click event
+            if (typeof window.gtag === 'function') {
+                window.gtag('event', 'share_app_copy_link', { 'event_category': 'Engagement', 'event_label': 'Copy Link Clicked' });
+            }
+            console.log("Analytics Event: share_app_copy_link clicked. Context URL: " + appUrl);
+            
+            const inviteText = `اقرأ وتدبر القرآن الكريم بتفسير مبسط وذكي عبر تطبيق مصحف إسلامي متميز ومزود بالمساعد الذكي للتفسير وتدبر معاني الآيات. انشر الفائدة وشارك التطبيق الشريف:\n${appUrl}`;
+            
+            navigator.clipboard.writeText(inviteText).then(() => {
+                // Successful clipboard copy
+                activateCopySuccess();
+            }).catch((err) => {
+                console.warn("Clipboard API failed, trying select fallback...", err);
+                // Fallback manual copy
+                try {
+                    shareAppFallbackInput.value = inviteText;
+                    shareAppFallbackInput.select();
+                    shareAppFallbackInput.setSelectionRange(0, 99999); // for mobile
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        activateCopySuccess();
+                    } else {
+                        throw new Error("execCommand copy unsuccessful");
+                    }
+                } catch (fallbackErr) {
+                    console.error("Fallback Copy failed: ", fallbackErr);
+                    showTibyanToast("حدث خطأ طارئ أثناء النسخ، يرجى نسخ الرابط من حقل العنوان.", "error");
+                }
+            });
+        }
+
+        function activateCopySuccess() {
+            isCopiedState = true;
+            shareAppCopyBtn.classList.add('success-state');
+            const origHtml = shareAppCopyBtn.innerHTML;
+            shareAppCopyBtn.innerHTML = `
+                <i data-lucide="check"></i>
+                <span class="btn-text">تم النسخ!</span>
+            `;
+            if (window.lucide) {
+                try { lucide.createIcons(); } catch(e) {}
+            }
+            
+            showTibyanToast("تم نسخ رابط التطبيق بنجاح! جاهز للمشاركة.", "success");
+            
+            setTimeout(() => {
+                isCopiedState = false;
+                shareAppCopyBtn.classList.remove('success-state');
+                shareAppCopyBtn.innerHTML = origHtml;
+                if (window.lucide) {
+                    try { lucide.createIcons(); } catch(e) {}
+                }
+            }, 2000);
+        }
+
+        function handleShareLink() {
+            // Event Analytics click event
+            if (typeof window.gtag === 'function') {
+                window.gtag('event', 'share_app_share_api', { 'event_category': 'Engagement', 'event_label': 'Share Button Clicked' });
+            }
+            console.log("Analytics Event: share_app_share_api clicked");
+            
+            const inviteText = `اقرأ وتدبر القرآن الكريم بتفسير مبسط وذكي عبر تطبيق مصحف إسلامي متميز ومزود بالمساعد الذكي للتفسير وتدبر معاني الآيات. انشر الفائدة وشارك التطبيق الشريف:`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'مصحف إسلامي - تبيان الذكي',
+                    text: inviteText,
+                    url: appUrl
+                }).catch((err) => {
+                    console.log("Web Share was cancelled or failed", err);
+                });
+            } else {
+                // Fallback to Copy Link and show appropriate notification
+                handleCopyLink();
+                showTibyanToast("عذراً، نظامك لا يدعم المشاركة المباشرة، تم نسخ الرابط بدلاً من ذلك.", "error");
+            }
+        }
+
+        // Initialize Share App
+        initShareAppFeature();
+
+        // Gemini API Key Management
+        function openApiKeyModal() {
+            const modal = document.getElementById('apiKeyModal');
+            const input = document.getElementById('geminiApiKeyInput');
+            input.value = localStorage.getItem('gemini_api_key') || '';
+            document.getElementById('apiKeySaveStatus').style.display = 'none';
+            modal.classList.add('show');
+        }
+
+        function closeApiKeyModal() {
+            document.getElementById('apiKeyModal').classList.remove('show');
+        }
+
+        function saveApiKey() {
+            const input = document.getElementById('geminiApiKeyInput');
+            const key = input.value.trim();
+            if (key) {
+                localStorage.setItem('gemini_api_key', key);
+            } else {
+                localStorage.removeItem('gemini_api_key');
+            }
+            const status = document.getElementById('apiKeySaveStatus');
+            status.style.display = 'block';
+            setTimeout(() => closeApiKeyModal(), 1500);
+        }
+
+        function getApiKeyHeaders() {
+            const headers = { 'Content-Type': 'application/json' };
+            const apiKey = localStorage.getItem('gemini_api_key');
+            if (apiKey) {
+                headers['x-api-key'] = apiKey;
+            }
+            return headers;
+        }
+
+        // Init complete
+    </script>
+    <div id="tibyanToastContainer" class="tibyan-toast-container"></div>
+</body>
 </html>

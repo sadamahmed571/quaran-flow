@@ -142,6 +142,21 @@
             flex-shrink: 0;
         }
 
+        .font-btn-float {
+            background: var(--gold) !important;
+            color: white !important;
+        }
+
+        .font-btn-float:hover {
+            background: var(--navy) !important;
+            color: white !important;
+        }
+
+        .font-btn-float:active {
+            background: var(--navy) !important;
+            color: white !important;
+        }
+
         .nav-btn-float:hover {
             background: var(--gold);
             transform: scale(1.1);
@@ -210,8 +225,8 @@
             left: 0;
             right: 0;
             z-index: 100;
-            padding: 0.4rem 0.5rem;
-            background: lrgba(0, 0, 0, 0.1);
+            padding: 0.5rem 0.75rem;
+            background: linear-gradient(135deg, rgba(21, 89, 88, 0.95) 0%, rgba(11, 49, 48, 0.98) 100%);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(184, 134, 30, 0.3);
@@ -219,13 +234,13 @@
 
         /* Dark theme header gradient */
         [data-theme="dark"] .app-footer {
-            background: rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, rgba(30, 42, 74, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%);
             border-bottom: 1px solid rgba(184, 164, 122, 0.3);
         }
 
         /* Green theme header gradient */
         [data-theme="green"] .app-footer {
-            background: rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, rgba(30, 74, 52, 0.95) 0%, rgba(15, 45, 30, 0.98) 100%);
             border-bottom: 1px solid rgba(125, 142, 69, 0.3);
         }
 
@@ -286,14 +301,20 @@
             align-items: center;
             gap: 0.25rem;
         }
+        
+        .footer-nav span,
+        .footer-nav svg,
+        .footer-nav i {
+            pointer-events: none;
+        }
 
         /* Footer buttons with labels - border-radius 8px */
         .footer-nav .favorites-btn,
         .footer-nav .performance-btn {
-            height: 32px;
-            min-width: 32px;
+            height: 36px;
+            min-width: 36px;
             width: auto;
-            padding: 0 10px;
+            padding: 0 12px;
             border-radius: 8px;
             border: none;
             background: var(--gold);
@@ -302,21 +323,21 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 5px;
             transition: all 0.2s ease;
             position: relative;
             overflow: hidden;
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
             font-family: 'Tajawal', sans-serif;
-            font-size: 0.65rem;
+            font-size: 0.72rem;
             font-weight: 500;
         }
 
         /* Theme button remains circular */
         .footer-nav .theme-btn {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             border: none;
             background: var(--gold);
@@ -348,10 +369,10 @@
         }
 
         .footer-nav .search-btn {
-            height: 32px;
-            min-width: 32px;
+            height: 36px;
+            min-width: 36px;
             width: auto;
-            padding: 0 10px;
+            padding: 0 12px;
             border-radius: 8px;
             border: none;
             background: var(--gold);
@@ -360,14 +381,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 5px;
             transition: all 0.2s ease;
             position: relative;
             overflow: hidden;
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
             font-family: 'Tajawal', sans-serif;
-            font-size: 0.65rem;
+            font-size: 0.72rem;
             font-weight: 500;
         }
 
@@ -388,10 +409,10 @@
         }
 
         .footer-nav .home-btn {
-            height: 32px;
-            min-width: 32px;
+            height: 36px;
+            min-width: 36px;
             width: auto;
-            padding: 0 10px;
+            padding: 0 12px;
             border-radius: 8px;
             border: none;
             background: var(--gold);
@@ -400,14 +421,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 5px;
             transition: all 0.2s ease;
             position: relative;
             overflow: hidden;
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
             font-family: 'Tajawal', sans-serif;
-            font-size: 0.65rem;
+            font-size: 0.72rem;
             font-weight: 500;
             text-decoration: none;
         }
@@ -423,8 +444,8 @@
         }
 
         .footer-nav .home-btn svg {
-            width: 14px;
-            height: 14px;
+            width: 16px;
+            height: 16px;
             flex-shrink: 0;
         }
 
@@ -436,23 +457,23 @@
         }
 
         .footer-nav .theme-btn svg {
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
         }
 
         .footer-nav .favorites-btn svg,
         .footer-nav .performance-btn svg,
         .footer-nav .search-btn svg {
-            width: 14px;
-            height: 14px;
+            width: 16px;
+            height: 16px;
             flex-shrink: 0;
         }
 
         .footer-nav .nav-btn {
-            height: 32px;
-            min-width: 32px;
+            height: 36px;
+            min-width: 36px;
             width: auto;
-            padding: 0 10px;
+            padding: 0 12px;
             border-radius: 8px;
             border: none;
             background: var(--navy);
@@ -461,10 +482,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 5px;
             transition: all 0.2s;
             font-family: 'Tajawal', sans-serif;
-            font-size: 0.65rem;
+            font-size: 0.72rem;
             font-weight: 500;
         }
 
@@ -484,8 +505,8 @@
         }
 
         .footer-nav .nav-btn svg {
-            width: 14px;
-            height: 14px;
+            width: 16px;
+            height: 16px;
             flex-shrink: 0;
         }
 
@@ -541,7 +562,7 @@
         /* منطقة القراءة - كامل الشاشة بدون مشتتات */
         .reading-area {
             position: fixed;
-            top: 48px;
+            top: 56px;
             left: 0;
             right: 0;
             bottom: 0;
@@ -561,6 +582,72 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
+        }
+
+        /* First two pages - Special background and full content styling */
+        .reading-area:has(.page-view.first-pages),
+        .reading-area.first-pages-active {
+            padding: 0;
+        }
+
+        .page-view.first-pages {
+            background: var(--paper);
+            padding: 0;
+            margin: 0;
+            border-radius: 0;
+        }
+
+        .page-view.first-pages::before,
+        .page-view.first-pages::after {
+            display: none;
+        }
+
+        .page-view.first-pages .page-view-inner {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .page-view.first-pages[data-page="1"] .page-view-inner {
+            background-image: url('../first.png');
+            background-size: 100% 100%;
+            background-position: center bottom;
+            background-repeat: no-repeat;
+            width: 100%;
+            height: 100%;
+        }
+
+        .page-view.first-pages[data-page="2"] .page-view-inner {
+            background-image: url('../second.png');
+            background-size: 100% 100%;
+            background-position: center bottom;
+            background-repeat: no-repeat;
+            width: 100%;
+            height: 100%;
+        }
+
+        .page-view.first-pages .sura-header {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .page-view.first-pages .basmala {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .page-view.first-pages .page-content {
+            opacity: 0;
+            /* Allow pointer events so users can theoretically tap verses, though they won't perfectly align */
+            font-size: calc(var(--quran-font-size, 1rem) * 1.15);
+            line-height: 2.3;
+            padding: 0 30px;
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
         }
 
         /* زخارف جانبية - يمين ويسار */
@@ -794,101 +881,6 @@
             color: var(--gold);
         }
 
-        /* Quran Font Tool in Footer - Inline */
-        .quran-font-tool-footer {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .quran-font-toggle-footer {
-            height: 32px;
-            min-width: 32px;
-            width: auto;
-            padding: 0 10px;
-            border-radius: 8px;
-            border: none;
-            background: var(--navy);
-            color: white;
-            font-family: 'Tajawal', sans-serif;
-            font-weight: 500;
-            font-size: 0.65rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-
-        .quran-font-toggle-footer:hover {
-            background: var(--gold);
-            transform: scale(1.05);
-        }
-
-        .quran-font-toggle-footer.hidden {
-            display: none;
-        }
-
-        .quran-font-toggle-footer svg {
-            width: 14px;
-            height: 14px;
-            flex-shrink: 0;
-        }
-
-        .quran-font-actions-footer {
-            display: none;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .quran-font-actions-footer.show {
-            display: flex;
-        }
-
-        .quran-font-btn {
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
-            border: none;
-            background: rgba(30, 58, 138, 0.15);
-            color: var(--navy);
-            font-family: 'Tajawal', sans-serif;
-            font-weight: 700;
-            font-size: 0.7rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-
-        .quran-font-btn:hover {
-            background: var(--gold);
-            color: white;
-        }
-
-        [data-theme="dark"] .quran-font-toggle-footer {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        [data-theme="dark"] .quran-font-toggle-footer:hover {
-            background: var(--gold);
-            color: var(--navy);
-        }
-
-        [data-theme="dark"] .quran-font-btn {
-            background: rgba(251, 191, 36, 0.15);
-            color: var(--gold);
-        }
-
-        [data-theme="dark"] .quran-font-btn:hover {
-            background: var(--gold);
-            color: var(--navy);
-        }
-
         .page-content {
             flex: 1;
             font-size: var(--quran-font-size, clamp(0.95rem, 2.2vh, 1.4rem));
@@ -947,7 +939,7 @@
         /* شريط التقدم اليومي */
         .daily-progress-bar {
             position: fixed;
-            top: 48px;
+            top: 56px;
             bottom: auto;
             left: 0;
             right: 0;
@@ -1784,7 +1776,7 @@
         }
 
         .verse-action-bar.show {
-            top: 60px;
+            top: 68px;
         }
 
         .action-item {
@@ -1793,6 +1785,7 @@
             align-items: center;
             gap: 4px;
             flex-shrink: 0;
+            position: relative;
         }
 
         .action-btn {
@@ -1807,6 +1800,21 @@
             justify-content: center;
             cursor: pointer;
             transition: transform 0.2s, background 0.2s;
+            position: relative;
+        }
+        
+        .action-btn svg,
+        .action-btn i {
+            pointer-events: none;
+        }
+        
+        .action-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: -25px;
+            left: -10px;
+            right: -10px;
         }
 
         .action-label {
@@ -1815,6 +1823,7 @@
             font-family: 'Tajawal', sans-serif;
             line-height: 1;
             color: var(--navy);
+            pointer-events: none;
         }
 
         .action-btn:hover {
@@ -2110,7 +2119,7 @@
         }
 
         .verse-insight.show {
-            top: 48px;
+            top: 56px;
         }
 
         .insight-header {
@@ -2684,15 +2693,15 @@
             .footer-nav .nav-btn,
             .footer-nav .favorites-btn,
             .footer-nav .performance-btn {
-                height: 28px;
-                padding: 0 6px;
-                font-size: 0.55rem;
-                gap: 3px;
+                height: 32px;
+                padding: 0 8px;
+                font-size: 0.6rem;
+                gap: 4px;
             }
 
             .footer-nav .theme-btn {
-                width: 28px;
-                height: 28px;
+                width: 32px;
+                height: 32px;
             }
 
             .footer-nav .home-btn svg,
@@ -2700,30 +2709,68 @@
             .footer-nav .nav-btn svg,
             .footer-nav .favorites-btn svg,
             .footer-nav .performance-btn svg {
-                width: 12px;
-                height: 12px;
-            }
-
-            .footer-nav .theme-btn svg {
                 width: 14px;
                 height: 14px;
             }
 
+            .footer-nav .theme-btn svg {
+                width: 16px;
+                height: 16px;
+            }
+
             .quran-font-toggle-footer {
-                height: 28px;
-                padding: 0 6px;
-                font-size: 0.55rem;
-                gap: 3px;
+                height: 32px;
+                padding: 0 8px;
+                font-size: 0.6rem;
+                gap: 4px;
             }
 
             .quran-font-toggle-footer svg {
-                width: 12px;
-                height: 12px;
+                width: 14px;
+                height: 14px;
             }
 
             .quran-font-btn {
-                width: 24px;
-                height: 24px;
-                font-size: 0.6rem;
+                width: 28px;
+                height: 28px;
+                font-size: 0.65rem;
+            }
+
+            /* First pages mobile optimization */
+            .reading-area:has(.page-view.first-pages),
+            .reading-area.first-pages-active {
+                padding: 0;
+            }
+
+            .page-view.first-pages {
+                padding: 0;
+                margin: 0;
+                border-radius: 0;
+            }
+
+            .page-view.first-pages .page-view-inner {
+                background-size: 100% 100%;
+                background-position: center center;
+                width: 100%;
+                height: 100%;
+            }
+
+            .page-view.first-pages .sura-header {
+                height: 48px;
+            }
+
+            .page-view.first-pages .sura-header .sura-name {
+                font-size: 0.95rem;
+            }
+
+            .page-view.first-pages .basmala {
+                font-size: clamp(0.75rem, 2vh, 0.9rem);
+                padding: 0.3rem 0;
+            }
+
+            .page-view.first-pages .page-content {
+                font-size: calc(var(--quran-font-size, 0.9rem) * 1.1);
+                line-height: 2.1;
+                padding: 0 16px;
             }
         }

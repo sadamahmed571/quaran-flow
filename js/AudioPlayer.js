@@ -280,7 +280,9 @@ class AudioPlayer {
         this.verseInfo.textContent = `سورة ${this.getSurahName(surahNumber)} - آية ${ayahNumber}`;
         
         // Show loading indicator
-        this.loadingIndicator.style.display = 'flex';
+        if (this.loadingIndicator) {
+            this.loadingIndicator.style.display = 'flex';
+        }
         
         try {
             const url = audioService.getAudioUrl(surahNumber, ayahNumber);
@@ -295,7 +297,9 @@ class AudioPlayer {
             console.error('Error loading ayah:', error);
             this.onError(error);
         } finally {
-            this.loadingIndicator.style.display = 'none';
+            if (this.loadingIndicator) {
+                this.loadingIndicator.style.display = 'none';
+            }
         }
     }
 
@@ -317,6 +321,7 @@ class AudioPlayer {
      * Update play/pause button state
      */
     updatePlayPauseButton() {
+        if (!this.playIcon || !this.pauseIcon) return;
         if (this.isPlaying) {
             this.playIcon.style.display = 'none';
             this.pauseIcon.style.display = 'block';
@@ -392,7 +397,9 @@ class AudioPlayer {
      */
     updateOfflineStatus() {
         this.isOffline = !navigator.onLine;
-        this.offlineIndicator.style.display = this.isOffline ? 'flex' : 'none';
+        if (this.offlineIndicator) {
+            this.offlineIndicator.style.display = this.isOffline ? 'flex' : 'none';
+        }
     }
 
     /**
@@ -423,7 +430,9 @@ class AudioPlayer {
 
     onError(error) {
         console.error('Audio error:', error);
-        this.loadingIndicator.style.display = 'none';
+        if (this.loadingIndicator) {
+            this.loadingIndicator.style.display = 'none';
+        }
         this.isPlaying = false;
         this.updatePlayPauseButton();
         
@@ -432,11 +441,15 @@ class AudioPlayer {
     }
 
     onWaiting() {
-        this.loadingIndicator.style.display = 'flex';
+        if (this.loadingIndicator) {
+            this.loadingIndicator.style.display = 'flex';
+        }
     }
 
     onPlaying() {
-        this.loadingIndicator.style.display = 'none';
+        if (this.loadingIndicator) {
+            this.loadingIndicator.style.display = 'none';
+        }
     }
 
     onOnline() {
