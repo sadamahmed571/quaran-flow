@@ -4,8 +4,8 @@
   "description": "مصحف إلكتروني متكامل مع التفسير والبحث والتتبع.",
   "start_url": "/index.html",
   "display": "standalone",
-  "background_color": "#1e3a8a",
-  "theme_color": "#1e3a8a",
+  "background_color": "#084140",
+  "theme_color": "#084140",
   "icons": [
     {
       "src": "img/app-logo4.png",
