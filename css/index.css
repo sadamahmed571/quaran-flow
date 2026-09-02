@@ -1177,7 +1177,7 @@
         .expanded-sura-info {
             color: var(--ink-light);
             font-family: 'Readex Pro', sans-serif;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             margin-bottom: 1.5rem;
             display: inline-flex;
             align-items: center;
@@ -1203,7 +1203,7 @@
             color: var(--navy);
             border: none;
             border-radius: 0.8rem;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-family: 'Readex Pro', sans-serif;
             cursor: pointer;
             transition: all 0.2s;
