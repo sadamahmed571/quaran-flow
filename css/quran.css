@@ -1,64 +1,64 @@
-       :root {
-    --navy: #155958;
-    --gold: #b8861e;
-    --gold-light: #d4a84b;
-    --cream: #f6eedb;
-    --paper: #fefcf6;
-    --ink: #2c2014;
-    --border-tan: #dfd0b0;
-    --verse-number: #1a6b5e;
-    --highlight-gold: #9a6c14;
+:root {
+    /* ──────────────────────────────────────────────
+       الثيم الافتراضي: المصحف الملكي المطبوع
+       درجات بيج عاجي طبيعي، كحلي قرآني غامق ووقور، وذهب مطفأ
+       ────────────────────────────────────────────── */
+    --navy: #1b3838;            /* أخضر مصحفي داكن جداً ووقور بدلاً من الفيروزي الحاد */
+    --gold: #9c7b41;            /* ذهب برونزي مطفأ غير فاقع */
+    --gold-light: #c2a66b;      /* إضاءة ذهبية رملية هادئة */
+    --cream: #f4efe4;           /* خلفية حواف/بطاقات بلون الورق العاجي الطبيعي */
+    --paper: #fbf9f4;           /* أرضية الصفحة (أوف وايت مريح غير ناصع) */
+    --ink: #1f1b18;             /* حبر كربوني دافئ مريح جداً بدلاً من الأسود الحاد */
+    --border-tan: #ded6c5;      /* حدود زخرفية خافتة لا تشتت العين */
+    --verse-number: #274d4b;    /* أرقام الآيات بدرجة زيتية/كحلية متزنة */
+    --highlight-gold: #82632e;  /* تمييز وتحديد منضبط */
 }
 
 /* ──────────────────────────────────────────────
-   الثيم الأول: المصحف (Mushaf)
-   مستوحى من المصاحف المطبوعة التقليدية
-   ألوان دافئة راقية تريح العين للقراءة الطويلة
+   الثيم الأول: المصحف (Mushaf / Warm Royal)
    ────────────────────────────────────────────── */
 [data-theme="cream"] {
-    --navy: #155958;
-    --gold: #b8861e;
-    --gold-light: #d4a84b;
-    --cream: #f6eedb;
-    --paper: #fefcf6;
-    --ink: #2c2014;
-    --border-tan: #dfd0b0;
-    --verse-number: #1a6b5e;
-    --highlight-gold: #9a6c14;
+    --navy: #1b3838;
+    --gold: #9c7b41;
+    --gold-light: #c2a66b;
+    --cream: #f4efe4;
+    --paper: #fbf9f4;
+    --ink: #1f1b18;
+    --border-tan: #ded6c5;
+    --verse-number: #274d4b;
+    --highlight-gold: #82632e;
 }
 
 /* ──────────────────────────────────────────────
-   الثيم الثاني: الليل (Layl)
-   ألوان هادئة داكنة للقراءة الليلية المريحة
-   خلفية زرقاء داكنة بتدرج مخملي مع ذهب خافت
+   الثيم الثاني: الليل (Night / Charcoal Deep)
+   رمادي كربوني دافئ يقلل إشعاع الشاشة مع ذهب ترابي خافت
    ────────────────────────────────────────────── */
 [data-theme="dark"] {
-    --navy: #1e2a4a;
-    --gold: #b8a47a;
-    --gold-light: #cfc09a;
-    --cream: #1c2130;
-    --paper: #141820;
-    --ink: #d9d4c8;
-    --border-tan: #353b4d;
-    --verse-number: #b8a47a;
-    --highlight-gold: #d4bf90;
+    --navy: #1f2732;            /* كحلي معتم مطفأ للبطاقات البارزة */
+    --gold: #a6916a;            /* ذهب مسائي مطفأ */
+    --gold-light: #c4b38f;      /* ذهب فاتح للقراءة الهادئة */
+    --cream: #181b20;           /* لون البطاقات والإطارات الثانوية */
+    --paper: #101216;           /* سواد كربوني عميق بدلاً من الأزرق المشع */
+    --ink: #dfdcd5;             /* نص بيج فاتح يمنع التوهج العالي (Halation effect) */
+    --border-tan: #272c35;      /* حدود دقيقة خافتة جداً */
+    --verse-number: #a6916a;    /* توافق ناعم مع الذهب الداكن */
+    --highlight-gold: #bda67a;  /* تمييز ليلي مريح */
 }
 
 /* ──────────────────────────────────────────────
-   الثيم الثالث: الجنة (Jannah)
-   ألوان خضراء منعشة تذكّر بجنات النعيم
-   تدرجات الزيتون والغار مع أرضيات عاجية هادئة
+   الثيم الثالث: الرياض / الغار (Muted Olive & Laurel)
+   ألوان أوراق الغار والزيتون الهادئة بدلاً من الأخضر العشبي الليموني
    ────────────────────────────────────────────── */
 [data-theme="green"] {
-    --navy: #1e4a34;
-    --gold: #7d8e45;
-    --gold-light: #a3b860;
-    --cream: #f0f5e8;
-    --paper: #f9fcf6;
-    --ink: #263318;
-    --border-tan: #c4d1ae;
-    --verse-number: #2d5e3d;
-    --highlight-gold: #5d7330;
+    --navy: #22372c;            /* أخضر غابي داكن ورسمي */
+    --gold: #687352;            /* زيتوني ترابي هادئ كبديل للذهب الفاقع */
+    --gold-light: #89966f;      /* زيتوني فاتح معتدل التشبع */
+    --cream: #edf0e8;           /* عاجي بلمسة زيتونية خفيفة جداً */
+    --paper: #f7f9f5;           /* خلفية ورقية مريحة خالية من الصفرة الفاقعة */
+    --ink: #1c261e;             /* حبر داكن مائل للخضرة الخافتة */
+    --border-tan: #ced4c5;      /* إطارات طبيعية باردة */
+    --verse-number: #2e4a3c;    /* أرقام آيات بلون أوراق الشجر الداكنة */
+    --highlight-gold: #546142;  /* تحديد هادئ غير مشتت */
 }
 
         * {
@@ -603,7 +603,7 @@
         }
 
         .page-view.first-pages .page-view-inner {
-            max-width: 600px;
+            max-width: 500px;
             margin: 0 auto;
         }
 
@@ -736,6 +736,9 @@
             flex-direction: column;
             padding: 25px 0;
             overflow: hidden;
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
         }
 
         .page-view-inner .page-content {
@@ -2774,3 +2777,232 @@
                 padding: 0 16px;
             }
         }
+
+        .bookmarked-verse {
+            background-color: rgba(251, 191, 36, 0.15);
+            /* amber-200/15 */
+            border-right: 3px solid #d97706;
+            /* amber-600 */
+        }
+
+        .action-btn.active-bookmark {
+            color: #d97706;
+        }
+
+        .action-btn.active-bookmark svg {
+            fill: currentColor;
+        }
+
+        /* Tibyan AI Modal Styles (matching index.html) */
+        .tibyan-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .tibyan-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .tibyan-container {
+            width: 100%;
+            max-width: 500px;
+            height: 85vh;
+            max-height: 800px;
+            background: var(--cream);
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform: translateY(30px) scale(0.95);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        .tibyan-modal.active .tibyan-container {
+            transform: translateY(0) scale(1);
+        }
+        .tibyan-header {
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, var(--ink) 0%, var(--ink-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+            border-bottom: 2px solid var(--gold);
+        }
+        .tibyan-header-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .tibyan-header-title h3 {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+        }
+        .tibyan-header-title p {
+            margin: 0;
+            font-size: 0.8rem;
+            opacity: 0.8;
+            font-family: Arial, sans-serif;
+        }
+        .tibyan-close {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+        .tibyan-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .tibyan-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            scroll-behavior: smooth;
+        }
+        .tibyan-msg {
+            max-width: 85%;
+            padding: 1rem 1.2rem;
+            border-radius: 16px;
+            font-family: Arial, sans-serif;
+            font-size: 1rem;
+            line-height: 1.6;
+            animation: fadeIn 0.3s ease;
+        }
+        .tibyan-msg.bot {
+            background: #ffffff;
+            color: var(--ink);
+            align-self: flex-start;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .tibyan-msg.user {
+            background: var(--navy);
+            color: white;
+            align-self: flex-end;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.2);
+        }
+        .tibyan-msg.bot .markdown-body p { margin-top: 0; margin-bottom: 0.8rem; }
+        .tibyan-msg.bot .markdown-body p:last-child { margin-bottom: 0; }
+        .tibyan-msg.bot .markdown-body ul { margin: 0.5rem 0; padding-right: 1.5rem; }
+        .tibyan-msg.bot .markdown-body li { margin-bottom: 0.3rem; }
+        .tibyan-msg.bot .markdown-body strong { color: var(--navy); font-weight: bold; }
+        .tibyan-prompts {
+            padding: 1rem 1.5rem;
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+        .tibyan-prompts::-webkit-scrollbar { display: none; }
+        .tibyan-prompt-btn {
+            white-space: nowrap;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: #927515;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-family: Arial, sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tibyan-prompt-btn:hover {
+            background: var(--gold);
+            color: white;
+        }
+        .tibyan-input-area {
+            padding: 1rem 1.5rem;
+            background: white;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            gap: 0.5rem;
+        }
+        .tibyan-input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 24px;
+            font-family: Arial, sans-serif;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+            background: #f9f9f9;
+        }
+        .tibyan-input:focus {
+            border-color: var(--navy);
+            background: white;
+        }
+        .tibyan-send {
+            background: var(--gold);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+        .tibyan-send:hover {
+            transform: scale(1.05);
+            background: #b8912e;
+        }
+        .tibyan-send:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        [data-theme="dark"] .tibyan-container { background: var(--cream); border-color: rgba(255,255,255,0.1); }
+        [data-theme="dark"] .tibyan-msg.bot { background: rgba(30, 41, 59, 0.8); color: var(--ink); border-color: rgba(255,255,255,0.1); }
+        [data-theme="dark"] .tibyan-msg.bot .markdown-body strong { color: var(--gold-light); }
+        [data-theme="dark"] .tibyan-input-area { background: rgba(30, 41, 59, 1); border-color: rgba(255,255,255,0.1); }
+        [data-theme="dark"] .tibyan-input { background: rgba(0,0,0,0.2); color: white; border-color: rgba(255,255,255,0.1); }
+        [data-theme="dark"] .tibyan-input::placeholder { color: rgba(255,255,255,0.4); }
+        [data-theme="dark"] .tibyan-prompts { border-color: rgba(255,255,255,0.1); }
+        [data-theme="dark"] .tibyan-prompt-btn { color: var(--gold-light); border-color: rgba(212, 175, 55, 0.3); }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 480px) {
+            .tibyan-messages { padding: 0.8rem 0.5rem; }
+            .tibyan-input-area { padding: 0.8rem 0.5rem; }
+            .tibyan-header { padding: 0.8rem 1rem; }
+            .tibyan-prompt-btn { padding: 0.5rem 0.8rem; font-size: 0.85rem; }
+        }
+    
+.daily-progress-bar-inline { display: none; }
+
+.page-view-inline { display: none; }
+
+.action-item-inline { display: none; }
+.action-item-inline-2 { display: none; }
+
+
+.spinner-inline { display:inline-block; border-top-color:var(--navy); width:12px; height:12px; border-width:2px; margin-right:5px; vertical-align:middle; }

@@ -16,226 +16,7 @@
     <meta name="format-detection" content="telephone=no">
     <link rel="stylesheet" href="css/fonts-quran.css">
     <link rel="stylesheet" href="css/quran.css">
-    <style>
-        .bookmarked-verse {
-            background-color: rgba(251, 191, 36, 0.15);
-            /* amber-200/15 */
-            border-right: 3px solid #d97706;
-            /* amber-600 */
-        }
-
-        .action-btn.active-bookmark {
-            color: #d97706;
-        }
-
-        .action-btn.active-bookmark svg {
-            fill: currentColor;
-        }
-
-        /* Tibyan AI Modal Styles (matching index.html) */
-        .tibyan-modal {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-        .tibyan-modal.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .tibyan-container {
-            width: 100%;
-            max-width: 500px;
-            height: 85vh;
-            max-height: 800px;
-            background: var(--cream);
-            border-radius: 24px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            transform: translateY(30px) scale(0.95);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-        }
-        .tibyan-modal.active .tibyan-container {
-            transform: translateY(0) scale(1);
-        }
-        .tibyan-header {
-            padding: 1rem 1.5rem;
-            background: linear-gradient(135deg, var(--ink) 0%, var(--ink-light) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            color: white;
-            border-bottom: 2px solid var(--gold);
-        }
-        .tibyan-header-title {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        .tibyan-header-title h3 {
-            margin: 0;
-            font-size: 1.3rem;
-            font-weight: bold;
-            font-family: Arial, sans-serif;
-        }
-        .tibyan-header-title p {
-            margin: 0;
-            font-size: 0.8rem;
-            opacity: 0.8;
-            font-family: Arial, sans-serif;
-        }
-        .tibyan-close {
-            background: rgba(255,255,255,0.1);
-            border: none;
-            color: white;
-            width: 36px; height: 36px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: background 0.2s;
-        }
-        .tibyan-close:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        .tibyan-messages {
-            flex: 1;
-            padding: 1.5rem;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            scroll-behavior: smooth;
-        }
-        .tibyan-msg {
-            max-width: 85%;
-            padding: 1rem 1.2rem;
-            border-radius: 16px;
-            font-family: Arial, sans-serif;
-            font-size: 1rem;
-            line-height: 1.6;
-            animation: fadeIn 0.3s ease;
-        }
-        .tibyan-msg.bot {
-            background: #ffffff;
-            color: var(--ink);
-            align-self: flex-start;
-            border-bottom-right-radius: 4px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-        .tibyan-msg.user {
-            background: var(--navy);
-            color: white;
-            align-self: flex-end;
-            border-bottom-left-radius: 4px;
-            box-shadow: 0 4px 15px rgba(30, 58, 138, 0.2);
-        }
-        .tibyan-msg.bot .markdown-body p { margin-top: 0; margin-bottom: 0.8rem; }
-        .tibyan-msg.bot .markdown-body p:last-child { margin-bottom: 0; }
-        .tibyan-msg.bot .markdown-body ul { margin: 0.5rem 0; padding-right: 1.5rem; }
-        .tibyan-msg.bot .markdown-body li { margin-bottom: 0.3rem; }
-        .tibyan-msg.bot .markdown-body strong { color: var(--navy); font-weight: bold; }
-        .tibyan-prompts {
-            padding: 1rem 1.5rem;
-            display: flex;
-            gap: 0.5rem;
-            overflow-x: auto;
-            scrollbar-width: none;
-            border-top: 1px solid rgba(0,0,0,0.05);
-        }
-        .tibyan-prompts::-webkit-scrollbar { display: none; }
-        .tibyan-prompt-btn {
-            white-space: nowrap;
-            background: rgba(212, 175, 55, 0.1);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            color: #927515;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-family: Arial, sans-serif;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .tibyan-prompt-btn:hover {
-            background: var(--gold);
-            color: white;
-        }
-        .tibyan-input-area {
-            padding: 1rem 1.5rem;
-            background: white;
-            border-top: 1px solid rgba(0,0,0,0.05);
-            display: flex;
-            gap: 0.5rem;
-        }
-        .tibyan-input {
-            flex: 1;
-            padding: 0.8rem 1rem;
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 24px;
-            font-family: Arial, sans-serif;
-            font-size: 1rem;
-            outline: none;
-            transition: border-color 0.2s;
-            background: #f9f9f9;
-        }
-        .tibyan-input:focus {
-            border-color: var(--navy);
-            background: white;
-        }
-        .tibyan-send {
-            background: var(--gold);
-            color: white;
-            border: none;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
-        }
-        .tibyan-send:hover {
-            transform: scale(1.05);
-            background: #b8912e;
-        }
-        .tibyan-send:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-        [data-theme="dark"] .tibyan-container { background: var(--cream); border-color: rgba(255,255,255,0.1); }
-        [data-theme="dark"] .tibyan-msg.bot { background: rgba(30, 41, 59, 0.8); color: var(--ink); border-color: rgba(255,255,255,0.1); }
-        [data-theme="dark"] .tibyan-msg.bot .markdown-body strong { color: var(--gold-light); }
-        [data-theme="dark"] .tibyan-input-area { background: rgba(30, 41, 59, 1); border-color: rgba(255,255,255,0.1); }
-        [data-theme="dark"] .tibyan-input { background: rgba(0,0,0,0.2); color: white; border-color: rgba(255,255,255,0.1); }
-        [data-theme="dark"] .tibyan-input::placeholder { color: rgba(255,255,255,0.4); }
-        [data-theme="dark"] .tibyan-prompts { border-color: rgba(255,255,255,0.1); }
-        [data-theme="dark"] .tibyan-prompt-btn { color: var(--gold-light); border-color: rgba(212, 175, 55, 0.3); }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @media (max-width: 480px) {
-            .tibyan-messages { padding: 0.8rem 0.5rem; }
-            .tibyan-input-area { padding: 0.8rem 0.5rem; }
-            .tibyan-header { padding: 0.8rem 1rem; }
-            .tibyan-prompt-btn { padding: 0.5rem 0.8rem; font-size: 0.85rem; }
-        }
-    </style>
+    
 </head>
 
 <body>
@@ -271,7 +52,7 @@
     </footer>
 
     <!-- شريط التقدم اليومي -->
-    <div class="daily-progress-bar" id="dailyProgressBar" style="display: none;">
+    <div class="daily-progress-bar daily-progress-bar-inline" id="dailyProgressBar">
         <div class="daily-progress-fill" id="dailyProgressFill"></div>
         <div class="daily-progress-label">الورد اليومي</div>
     </div>
@@ -281,7 +62,7 @@
             <div class="spinner"></div>
             <p>جاري تحميل المصحف...</p>
         </div>
-        <div class="page-view" id="pageView" style="display: none;">
+        <div class="page-view page-view-inline" id="pageView">
             <div class="ornament ornament-top" aria-hidden="true"></div>
             <div class="ornament ornament-bottom" aria-hidden="true"></div>
             <div class="page-view-inner" id="pageViewInner"></div>
@@ -330,7 +111,7 @@
             </button>
             <span class="action-label">تفسير</span>
         </div>
-        <div class="action-item" style="display: none;">
+        <div class="action-item action-item-inline">
             <button class="action-btn" id="audioBtn" title="التلاوة الصوتية">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polygon points="5 3 19 12 5 21 5 3"></polygon>
@@ -350,7 +131,7 @@
             </button>
             <span class="action-label">مشاركة</span>
         </div>
-        <div class="action-item" style="display: none;">
+        <div class="action-item action-item-inline-2">
             <button class="action-btn" id="tibyanBtn" title="تبيان AI">
                 <i data-lucide="bot"></i>
             </button>
@@ -548,7 +329,7 @@
             ];
             const randomMsg = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
             
-            typingDiv.innerHTML = `${randomMsg} <span class="spinner" style="display:inline-block; border-top-color:var(--navy); width:12px; height:12px; border-width:2px; margin-right:5px; vertical-align:middle;"></span>`;
+            typingDiv.innerHTML = `${randomMsg} <span class="spinner spinner-inline"></span>`;
             document.getElementById('tibyanMessages').appendChild(typingDiv);
             document.getElementById('tibyanMessages').scrollTop = document.getElementById('tibyanMessages').scrollHeight;
 
