@@ -1163,6 +1163,7 @@
             padding: 1.5rem;
             text-align: center;
             animation: fadeIn 0.3s ease;
+			 font-family: 'Arial', sans-serif;
         }
 
         .expanded-verse-text {
@@ -1170,7 +1171,7 @@
             line-height: 2.2;
             color: var(--ink);
             margin-bottom: 1.5rem;
-            font-family: 'Readex Pro', sans-serif;
+             font-family: 'Arial', sans-serif;
         }
 
         .expanded-sura-info {
